@@ -1,0 +1,13 @@
+# #if MODE == "dev"
+content koqatools content/
+skin koqatools classic/1.0 skin/
+locale koqatools en-US locale/en-US/
+
+# #else
+content koqatools jar:koqatools.jar!/content/
+skin koqatools classic/1.0 jar:koqatools.jar!/skin/
+locale koqatools en-US jar:koqatools.jar!/locale/en-US/
+# #endif
+
+overlay chrome://komodo/content/komodo.xul chrome://koqatools/content/koqatools_overlay.xul
+category require-path koqatools chrome://koqatools/content/lib/

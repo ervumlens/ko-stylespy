@@ -1,0 +1,4 @@
+build/
+/chrome.manifest
+*.xpi
+content/lib/
