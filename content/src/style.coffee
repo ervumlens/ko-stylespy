@@ -1,29 +1,6 @@
 
 (->
 	@version = '0.0.1'
-	@COMMENT = 0
-	@STYLE = 1
-	@TEXT = 2
-
-	@extractStyles = (view, start, end, receiver) ->
-
-		styles = view.scimoz.getStyleRange start, end
-
-		#The initial "last style" is the first style
-		lastStyle = styles[0]
-		count = 0
-		calls = 0
-		length = end - start
-		for i in [0 .. length]
-			style = styles[i]
-			if style isnt lastStyle
-				receiver @STYLE, lastStyle, count
-				lastStyle = style
-				count = 1
-				++calls
-			else
-				++count
-		calls
 
 	readNextLine = (view, start) ->
 		content = view.scimoz.text
@@ -36,10 +13,10 @@
 
 	@extractLineStyle = (view, start, receiver) ->
 		end = readNextLine view, start
-		text = view.scimoz.text.substr start, (end - start)
-		receiver @TEXT, text
-
-		@extractStyles view, start, end, receiver
+		scimoz = view.scimoz
+		text = scimoz.text.substr(start, end - start)
+		styles = scimoz.getStyleRange(start, end)
+		receiver text, styles
 		end
 
 	@extractAllLineStyles = (view, receiver)->
@@ -54,14 +31,48 @@
 			#console.log "Extracted line #{lines} from #{from} to #{pos}"
 		lines
 
+	flatten = (text, styles) ->
+		#turn a list of numbers into tall text
+		#e.g. if text is "ABC = 123" and styles is [4,4,4,0,10,0,2,2,2],
+		#then return:
+		#^ABC = 123
+		#     1
+		# 444000222
+
+		textLine = ['^']
+		tensLine = [' ']
+		onesLine = [' ']
+
+		for i in [0 ... text.length]
+			style = styles[i]
+			switch text[i]
+				when '\t'
+					textLine.push '\t ' #note the trailing space!
+					tensLine.push '\t'
+					onesLine.push '\t'
+				when '\n', '\r'
+					textLine.push ' ' #strip trailing EOL
+				else
+					textLine.push text[i]
+
+			tens = Math.floor(style / 10)
+			ones = style % 10
+			if tens is 0
+				tensLine.push ' '
+			else
+				tensLine.push tens.toString()
+			onesLine.push ones.toString()
+
+		[textLine.join(''), tensLine.join(''), onesLine.join('')]
+
 	@extractAllLineStylesFromCurrentEditorToClipboard = () ->
 		view = ko.views.manager.currentView
+		return false unless view
+	
+		lines = ["~language #{view.koDoc.language}"]
 		try
-			lines = []
-			linesWritten = @extractAllLineStyles view, (type, a, b) =>
-				switch type
-					when @TEXT then lines.push a
-					when @STYLE then lines.push "#{a}, #{b}"
+			linesWritten = @extractAllLineStyles view, (text, styles) =>
+				lines = lines.concat flatten(text, styles)
 
 			require('sdk/clipboard').set lines.join('\n')
 		catch e
