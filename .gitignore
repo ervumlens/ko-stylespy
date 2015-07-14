@@ -2,3 +2,5 @@ build/
 /chrome.manifest
 *.xpi
 content/lib/
+.komodotools/
+*.komodoproject
