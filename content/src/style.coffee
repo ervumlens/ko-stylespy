@@ -2,42 +2,13 @@
 (->
 	@version = '0.0.1'
 
-	readNextLine = (view, start) ->
-		content = view.scimoz.text
-		for pos in [start .. content.length]
-			c = content[pos]
-			if c in ['\n', '\r']
-				++pos #count EOL as part of the line
-				break
-		pos
-
-	@extractLineStyle = (view, start, receiver) ->
-		end = readNextLine view, start
-		scimoz = view.scimoz
-		text = scimoz.text.substr(start, end - start)
-		styles = scimoz.getStyleRange(start, end)
-		receiver text, styles
-		end
-
-	@extractAllLineStyles = (view, receiver)->
-		return 0 unless view?.scimoz?.length > 0
-		length = view.scimoz.length
-		lines = 0
-		pos = 0
-		while pos < length
-			from = pos
-			pos = @extractLineStyle view, pos, receiver
-			++lines
-			#console.log "Extracted line #{lines} from #{from} to #{pos}"
-		lines
-
 	flatten = (text, styles) ->
 		#turn a list of numbers into tall text
 		#e.g. if text is "ABC = 123" and styles is [4,4,4,0,10,0,2,2,2],
 		#then return:
 		#^ABC = 123
 		#     1
-		# 444000222
+		# 4..0002..
 
 		textLine = ['^']
 		tensLine = [' ']
@@ -70,29 +41,39 @@
 				else
 					textLine.push text[i]
 
-		[textLine.join(''), tensLine.join(''), onesLine.join('')]
+		[textLine, tensLine, onesLine].map (v) -> v.join('')
 
-	@extractAllLineStylesFromCurrentEditorToClipboard = (progress) ->
-		progress = (->) unless progress
+	class Extractor
+		constructor: (@view, @finalizer) ->
+			@currentLine = 0
+			@steps = @view.scimoz.lineCount
+			@lines = ["~language #{@view.koDoc.language}"]
+			@desc = 'Starting...'
+			@stage = 'Extracting...'
 
-		view = ko.views.manager.currentView
-		return false unless view
+		extractLine: (lineNo) ->
+			scimoz = @view.scimoz
+			start = scimoz.positionFromLine lineNo
+			end = scimoz.positionFromLine lineNo + 1
+			text = scimoz.text.substr(start, end - start)
+			@desc = text
+			styles = scimoz.getStyleRange(start, end)
+			@lines = @lines.concat flatten(text, styles)
 
-		lineCount = view.scimoz.lineCount
-		currentLine = 0
-		step = 101 / lineCount
-		lines = ["~language #{view.koDoc.language}"]
-		linesWritten = @extractAllLineStyles view, (text, styles) =>
-			lines = lines.concat flatten(text, styles)
-			response = progress step * ++currentLine, text
-			if response is 'cancel'
-				throw new Exception("Cancelled style extraction")
+		extractNextLine: ->
+			@extractLine @currentLine++
 
-		require('sdk/clipboard').set lines.join('\n')
+		step: ->
+			@extractNextLine()
+			@finalize() if @currentLine is @steps
+
+		finalize: ->
+			@finalizer @lines.join('\n')
+
 
 	#lifted from Komodo test code
 	class Processor
-		constructor: (@fn) ->
+		constructor: (@job) ->
 			@controller
 			@doCancel = false
 		set_controller: (controller) ->
@@ -101,29 +82,25 @@
 			{Ci, Cu} = require 'chrome'
 			{Services} = Cu.import 'resource://gre/modules/Services.jsm'
 
-			uiThread = Services.tm.currentThread
-			#start the process
-			launch = =>
-				@fn (percent, hint) =>
-					return 'cancel' if @doCancel
-					#@controller.set_stage(hint) if hint
-					#@controller.done() if percent >= 100
-					#@controller.set_progress_value percent
+			#start the job
+			steps = @job.steps
+			inc = 100 / steps
+			i = 0
+			next = =>
+				step = =>
+					if i is steps || @doCancel
+						@controller.done()
+						return
+					@job.step()
+					@controller.set_stage(@job.stage) if @job.stage
+					@controller.set_desc(@job.desc) if @job.desc
+					@controller.set_progress_value i * inc
+					++i
+					next()
 
-					@controller.set_stage 'Extracting...'
-					updateController = =>
-						@controller.set_desc(hint) if hint
-						@controller.done() if percent >= 100
-						@controller.set_progress_value percent
+				Services.tm.currentThread.dispatch step, Ci.nsIThread.DISPATCH_NORMAL
 
-					uiThread.dispatch updateController, Ci.nsIThread.DISPATCH_NORMAL
-
-			Services.tm.mainThread.dispatch launch, Ci.nsIThread.DISPATCH_NORMAL
-
-			#catch e
-			#	console.error e
-			#	@doCancel = true
-			#	@controller.done()
+			next()
 
 		cancel: ->
 			@doCancel = true
@@ -131,7 +108,10 @@
 	@extractAllLineStylesFromCurrentEditorToClipboardWithProgress = ->
 		return false unless ko?.views?.manager?.currentView?.scimoz
 
-		processor = new Processor (progress) => @extractAllLineStylesFromCurrentEditorToClipboard(progress)
+		job = new Extractor ko.views.manager.currentView, (result) ->
+			require('sdk/clipboard').set result
+
+		processor = new Processor job
 		msg = "Extracting style information. Please wait."
 		result = ko.dialogs.progress(processor, msg, "Extracting Styles", true, " No data will be copied to the clipboard.");
 
