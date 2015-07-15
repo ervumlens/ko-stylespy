@@ -38,7 +38,7 @@
 					textLine.push ' \t' #note the leading space!
 					tensLine.push '\t'
 					onesLine.push '\t'
-				when '\n', '\r'
+				when '\n', '\r'		  #TODO accommodate Windows
 					textLine.push ' ' #strip trailing EOL
 				else
 					textLine.push text[i]
@@ -91,22 +91,23 @@
 			steps = @job.steps
 			inc = 100 / steps
 			i = 0
-			next = =>
-				step = =>
-					if i is steps || @doCancel
-						@job.cancel() if @doCancel
-						@controller.done()
-						return
-					@job.step()
-					@controller.set_stage(@job.stage) if @job.stage
-					@controller.set_desc(@job.desc) if @job.desc
-					@controller.set_progress_value i * inc
-					++i
-					next()
 
+			enqueue = (step) ->
 				Services.tm.currentThread.dispatch step, Ci.nsIThread.DISPATCH_NORMAL
 
-			next()
+			step = =>
+				if i is steps || @doCancel
+					@job.cancel() if @doCancel
+					@controller.done()
+					return
+				@job.step()
+				@controller.set_stage(@job.stage) if @job.stage
+				@controller.set_desc(@job.desc) if @job.desc
+				@controller.set_progress_value i * inc
+				++i
+				enqueue step
+
+			enqueue step
 
 		cancel: ->
 			@doCancel = true
