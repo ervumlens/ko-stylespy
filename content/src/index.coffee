@@ -1,8 +1,5 @@
 
 
-if typeof(ko) is 'undefined'
-	`ko = {}`
-
 if typeof(ko.qatools) is 'undefined'
 	ko.qatools = {}
 
