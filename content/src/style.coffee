@@ -10,6 +10,8 @@
 		#     1
 		# 4..0002..
 
+		return ['$'] unless text.length > 0
+
 		textLine = ['^']
 		tensLine = [' ']
 		onesLine = [' ']
@@ -67,6 +69,9 @@
 			@extractNextLine()
 			@finalize() if @currentLine is @steps
 
+		cancel: ->
+			#nothing to do
+
 		finalize: ->
 			@finalizer @lines.join('\n')
 
@@ -89,6 +94,7 @@
 			next = =>
 				step = =>
 					if i is steps || @doCancel
+						@job.cancel() if @doCancel
 						@controller.done()
 						return
 					@job.step()
