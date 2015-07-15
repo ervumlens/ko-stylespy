@@ -13,7 +13,7 @@
   <script src="chrome://koqatools/content/lib/index.js"/>
 
   <commandset id="allcommands">
-    <command id="QATools:CopyCurrentEditorStyleToClipboard" oncommand="ko.qatools.style.extractAllLineStylesFromCurrentEditorToClipboard()"/>
+    <command id="QATools:CopyCurrentEditorStyleToClipboard" oncommand="ko.qatools.style.extractAllLineStylesFromCurrentEditorToClipboardWithProgress()"/>
     <command id="QATools:Dummy" oncommand="alert('Still here...')"/>
   </commandset>
 
