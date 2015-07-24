@@ -46,12 +46,17 @@
 		[textLine, tensLine, onesLine].map (v) -> v.join('')
 
 	class Extractor
-		constructor: (@view, @finalizer) ->
+		constructor: (@view, @finalizer, opts) ->
 			@currentLine = 0
 			@steps = @view.scimoz.lineCount
-			@lines = ["~language #{@view.koDoc.language}"]
+			@lines = []
 			@desc = 'Starting...'
 			@stage = 'Extracting...'
+			if opts
+				if 'comment' of opts
+					@lines.push '#' + opts.comment
+
+			@lines.push "~language #{@view.koDoc.language}"
 
 		extractLine: (lineNo) ->
 			scimoz = @view.scimoz
@@ -60,6 +65,7 @@
 			text = scimoz.text.substr(start, end - start)
 			@desc = text
 			styles = scimoz.getStyleRange(start, end)
+			@lines.push "# line #{lineNo + 1}"
 			@lines = @lines.concat flatten(text, styles)
 
 		extractNextLine: ->
@@ -114,8 +120,12 @@
 
 	@extractAllLineStyles = (view, progress, done) ->
 		return false unless view?.scimoz
+		path = view.koDoc.file?.displayPath
 
-		job = new Extractor view, done
+		opts = {}
+		opts.comment = path if path
+
+		job = new Extractor view, done, opts
 
 		processor = new Processor job
 		msg = "Extracting style information. Please wait."
@@ -126,7 +136,17 @@
 
 		view = ko.views.manager.currentView
 		progress = ko.dialogs.progress
-		done = (result) -> require('sdk/clipboard').set result
+		done = (content) -> require('sdk/clipboard').set content
+
+		@extractAllLineStyles view, progress, done
+
+	@extractAllLineStylesFromCurrentEditorToDialogWithProgress = (window) ->
+		return false unless ko?.views?.manager?.currentView?.scimoz
+		view = ko.views.manager.currentView
+		progress = ko.dialogs.progress
+		done = (content) ->
+			winOpts = "centerscreen,chrome,resizable,scrollbars,dialog=no,close";
+			window.openDialog 'chrome://stylespy/content/styledialog.xul', "_blank", winOpts, buffer: content
 
 		@extractAllLineStyles view, progress, done
 
