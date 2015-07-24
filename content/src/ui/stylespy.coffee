@@ -3,7 +3,7 @@ xtk.include("domutils");
 gDoc = null
 gView = null
 spylog = ko.logging.getLogger 'style-spy'
-style = require 'koqatools/style'
+style = require 'stylespy/style'
 
 StyleSpyOnBlur = ->
 StyleSpyOnFocus = ->
@@ -18,10 +18,13 @@ StyleSpyOnLoad = ->
 		gView = document.getElementById("view");
 
 		if window.arguments && window.arguments[0]
-			done = (result) -> gDoc.buffer = result
-			source = window.arguments[0]
-			progress = ko.dialogs.progress
-			style.extractAllLineStyles source, progress, done
+			opts = window.arguments[0]
+			if 'view' of opts
+				done = (content) -> gDoc.buffer = content
+				progress = ko.dialogs.progress
+				style.extractAllLineStyles opts.view, progress, done
+			else if 'buffer' of opts
+				gDoc.buffer = opts.buffer
 
 		gView.initWithBuffer gDoc.buffer, gDoc.language
 
@@ -32,7 +35,6 @@ StyleSpyOnLoad = ->
 		spylog.error e
 
 StyleSpyOnUnload = ->
-    #gDoc.releaseView(gView);
     #The "close" method ensures the scintilla view is properly cleaned up.
     gView.close()
     gDoc.releaseReference()
