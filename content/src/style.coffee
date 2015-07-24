@@ -112,14 +112,23 @@
 		cancel: ->
 			@doCancel = true
 
-	@extractAllLineStylesFromCurrentEditorToClipboardWithProgress = ->
-		return false unless ko?.views?.manager?.currentView?.scimoz
+	@extractAllLineStyles = (view, progress, done) ->
+		return false unless view?.scimoz
 
-		job = new Extractor ko.views.manager.currentView, (result) ->
-			require('sdk/clipboard').set result
+		job = new Extractor view, done
 
 		processor = new Processor job
 		msg = "Extracting style information. Please wait."
-		result = ko.dialogs.progress(processor, msg, "Extracting Styles", true, " No data will be copied to the clipboard.");
+		return progress(processor, msg, "Extracting Styles", true, " No data will be copied to the clipboard.");
+
+	@extractAllLineStylesFromCurrentEditorToClipboardWithProgress = ->
+		return false unless ko?.views?.manager?.currentView?.scimoz
+
+		view = ko.views.manager.currentView
+		progress = ko.dialogs.progress
+		done = (result) -> require('sdk/clipboard').set result
+
+		@extractAllLineStyles view, progress, done
+
 
 ).call module.exports
