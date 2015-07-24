@@ -1,5 +1,5 @@
 {
-  "keyboard_shortcut": "Ctrl+Shift+B", 
+  "keyboard_shortcut": "F5", 
   "name": "Build and Install", 
   "language": "JavaScript", 
   "trigger_enabled": false, 
