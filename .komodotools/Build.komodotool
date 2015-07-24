@@ -7,7 +7,6 @@
     "/**", 
     " * Script to build an xpi, running koext build in the current project root.", 
     " */", 
-    "", 
     "var project = ko.macros.current.project;", 
     "var projectDir = ko.interpolate.interpolateString('%p');", 
     "", 
@@ -45,6 +44,7 @@
     "  next();", 
     "}", 
     "", 
+    "ko.commands.doCommand('cmd_saveAll');", 
     "run([compileCoffeeScript, buildExtension])"
   ], 
   "trigger": "trigger_postopen", 

@@ -8,7 +8,6 @@
     " * Script to build an xpi, running koext build in the current project root and", 
     " * then install it into the currently running Komodo.", 
     " */", 
-    "", 
     "var project = ko.macros.current.project;", 
     "var projectDir = ko.interpolate.interpolateString('%p');", 
     "", 
@@ -69,6 +68,7 @@
     "}", 
     "", 
     "", 
+    "ko.commands.doCommand('cmd_saveAll');", 
     "run([compileCoffeeScript, buildExtension, install])"
   ], 
   "trigger": "trigger_postopen", 
