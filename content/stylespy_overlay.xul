@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://stylespy/skin/" type="text/css"?>
+
+<overlay id="stylespyOverlay"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script src="chrome://stylespy/content/lib/index.js"/>
+
+  <commandset id="allcommands">
+    <command id="StyleSpy:CopyCurrentEditorStyleToDialog" oncommand="ko.extensions.stylespy.style.extractAllLineStylesFromCurrentEditorToDialogWithProgress(window)"/>
+    <command id="StyleSpy:CopyCurrentEditorStyleToClipboard" oncommand="ko.extensions.stylespy.style.extractAllLineStylesFromCurrentEditorToClipboardWithProgress()"/>
+  </commandset>
+
+  <menupopup id="popup_tools">
+	<menu id= "stylespy_menu_root" label="Style Spy">
+		<menupopup id ="stylespy_menu_root_popup">
+			<menuitem id="stylespy_menu_style_dialog"
+					  label="Copy Style To Dialog"
+					  observes="StyleSpy:CopyCurrentEditorStyleToDialog"
+					  class="menu-iconic-wide"/>
+			<menuitem id="stylespy_menu_style_clipboard"
+					  label="Copy Style To Clipboard"
+					  observes="StyleSpy:CopyCurrentEditorStyleToClipboard"
+					  class="menu-iconic-wide"/>
+		</menupopup>
+	</menu>
+  </menupopup>
+
+</overlay>
