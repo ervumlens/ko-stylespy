@@ -1,7 +1,9 @@
 
+if typeof(ko.extensions) is 'undefined'
+	ko.extensions = {}
 
-if typeof(ko.qatools) is 'undefined'
-	ko.qatools = {}
+if typeof(ko.extensions.stylespy) is 'undefined'
+	ko.extensions.stylespy = {}
 
-if typeof(ko.qatools.style) is 'undefined'
-	ko.qatools.style = require 'koqatools/style'
+if typeof(ko.extensions.stylespy.style) is 'undefined'
+	ko.extensions.stylespy.style = require 'stylespy/style'
