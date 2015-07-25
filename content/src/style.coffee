@@ -52,11 +52,11 @@
 			@lines = []
 			@desc = 'Starting...'
 			@stage = 'Extracting...'
-			if opts
-				if 'comment' of opts
-					@lines.push '#' + opts.comment
 
 			@lines.push "~language #{@view.koDoc.language}"
+			if opts
+				@lines.push("~source #{opts.source}") if 'source' of opts
+
 
 		extractLine: (lineNo) ->
 			scimoz = @view.scimoz
@@ -123,7 +123,7 @@
 		path = view.koDoc.file?.displayPath
 
 		opts = {}
-		opts.comment = path if path
+		opts.source = path if path
 
 		job = new Extractor view, done, opts
 
