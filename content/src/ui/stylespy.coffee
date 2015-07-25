@@ -48,13 +48,15 @@ class StyleWatcher
 			spylog.warn "Styling line #{nextLine} (#{@lineText nextLine})"
 			line = @styleLine nextLine
 
+		#@scimoz.colourise 0, 100
+
 	styleLine: (line) ->
 		result = @parseStyleLine line
 		styleNumbers = @toStyleNumbers result.allText[1], result.allText[2]
 		spylog.warn "StyleNumbers: #{styleNumbers.join(',')}"
 		firstPos = @scimoz.positionFromLine(line)
 
-		@scimoz.startStyling firstPos, 0
+		@scimoz.startStyling firstPos + 1, 0
 		for i in [0...styleNumbers.length]
 			@scimoz.setStyling 1, styleNumbers[i]
 		result.line
@@ -70,10 +72,12 @@ class StyleWatcher
 			else
 				style = row1[i]
 
-			style = lastStyle if style is '.'
-			style = Number.parseInt style
-			style = 0 if Number.isNaN style
-			lastStyle = style
+			if style is '.'
+				style = lastStyle
+			else
+				style = Number.parseInt style
+				style = 0 if Number.isNaN style
+				lastStyle = style
 			styles.push style
 		styles
 
@@ -103,12 +107,20 @@ class StyleWatcher
 			spylog.warn "Changing language from #{@lang} to #{newLang}"
 			@lang = newLang
 			@doc.language = @lang
-			lexer = @doc.languageObj.getLanguageService	Components.interfaces.koILexerLanguageService
-			if lexer
-				spylog.warn "Found lexer for #{@lang}"
-				lexer.setCurrent @scimoz
-			else
-				spylog.warn "No lexer for #{@lang}"
+			@view.language = @lang
+			#@view.initWithBuffer @doc.buffer, @doc.language
+
+			#@doc.docSettingsMgr.applyDocumentSettingsToView @view
+			#langObj = @doc.languageObj
+			#@view.languageObj = langObj
+			#lexer = langObj.getLanguageService Components.interfaces.koILexerLanguageService
+			#@view.koDoc.docSettingsMgr.applyViewSettingsToDocument @view
+			#@view.koDoc.language = @lang
+			#if lexer
+			#	spylog.warn "Found lexer for #{@lang}"
+			#	lexer.setCurrent @scimoz
+			#else
+			#	spylog.warn "No lexer for #{@lang}"
 
 	lineText: (line, trimRight = true) ->
 		start = @scimoz.positionFromLine line
@@ -149,7 +161,7 @@ class StyleWatcher
 				spylog.warn "No language found in `#{text}`"
 
 		hitLang
-		
+
 StyleSpyOnLoad = ->
 	try
 		scintillaOverlayOnLoad()
@@ -168,6 +180,9 @@ StyleSpyOnLoad = ->
 				gDoc.buffer = opts.buffer
 
 		gView.initWithBuffer gDoc.buffer, gDoc.language
+		#gDoc.addView gView
+		#gDoc.addScimoz gView.scimoz
+		#gView.koDoc = gDoc
 
 		watcher = new StyleWatcher(gView, gDoc)
 
@@ -180,6 +195,9 @@ StyleSpyOnLoad = ->
 StyleSpyOnUnload = ->
 	watcher.release()
     #The "close" method ensures the scintilla view is properly cleaned up.
+	#gDoc.releaseScimoz gView.scimoz
+	#gDoc.releaseView gView
+	#gView.koDoc = null
 	gView.close()
 	gDoc.releaseReference()
 	scintillaOverlayOnUnload()
