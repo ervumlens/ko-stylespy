@@ -53,9 +53,9 @@
 			@desc = 'Starting...'
 			@stage = 'Extracting...'
 
-			@lines.push "~language #{@view.koDoc.language}"
+			@lines.push "=language #{@view.koDoc.language}"
 			if opts
-				@lines.push("~source #{opts.source}") if 'source' of opts
+				@lines.push("=source #{opts.source}") if 'source' of opts
 
 
 		extractLine: (lineNo) ->

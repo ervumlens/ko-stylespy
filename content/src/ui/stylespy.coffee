@@ -141,7 +141,7 @@ class StyleWatcher
 		return lineCount
 
 	findLanguage: ->
-		hitRx = /^~language\s+(.+)$/
+		hitRx = /^=language\s+(.+)$/
 
 		quitHere = @findFirstLineIndex()
 		lineCount = @scimoz.lineCount
