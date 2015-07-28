@@ -13,20 +13,32 @@
   <script src="chrome://stylespy/content/lib/index.js"/>
 
   <commandset id="allcommands">
+	<command id="StyleSpy:OpenNewDialog" oncommand="ko.extensions.stylespy.style.openNewDialog(window)"/>
     <command id="StyleSpy:CopyCurrentEditorStyleToDialog" oncommand="ko.extensions.stylespy.style.extractAllLineStylesFromCurrentEditorToDialogWithProgress(window)"/>
     <command id="StyleSpy:CopyCurrentEditorStyleToClipboard" oncommand="ko.extensions.stylespy.style.extractAllLineStylesFromCurrentEditorToClipboardWithProgress()"/>
+	<command id="StyleSpy:OpenHelpDialog" oncommand="ko.extensions.stylespy.style.openHelpDialog(window)"/>
   </commandset>
 
   <menupopup id="popup_tools">
 	<menu id= "stylespy_menu_root" label="Style Spy">
 		<menupopup id ="stylespy_menu_root_popup">
-			<menuitem id="stylespy_menu_style_dialog"
+			<menuitem id="stylespy_menu_open_new_dlg"
+					  label="Open New Dialog"
+					  observes="StyleSpy:OpenNewDialog"
+					  class="menu-iconic-wide"/>
+			<menuseparator/>
+			<menuitem id="stylespy_menu_copy_style_to_dlg"
 					  label="Copy Style To Dialog"
 					  observes="StyleSpy:CopyCurrentEditorStyleToDialog"
 					  class="menu-iconic-wide"/>
-			<menuitem id="stylespy_menu_style_clipboard"
+			<menuitem id="stylespy_menu_copy_style_to_cpbd"
 					  label="Copy Style To Clipboard"
 					  observes="StyleSpy:CopyCurrentEditorStyleToClipboard"
+					  class="menu-iconic-wide"/>
+			<menuseparator/>
+			<menuitem id="stylespy_menu_open_help_dlg"
+					  label="Help"
+					  observes="StyleSpy:OpenHelpDialog"
 					  class="menu-iconic-wide"/>
 		</menupopup>
 	</menu>
