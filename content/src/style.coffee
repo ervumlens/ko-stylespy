@@ -150,5 +150,13 @@
 
 		@extractAllLineStyles view, progress, done
 
+	@openNewDialog = (window) ->
+		winOpts = "centerscreen,chrome,resizable,scrollbars,dialog=no,close";
+		window.openDialog 'chrome://stylespy/content/styledialog.xul', "_blank", winOpts
+
+	@openHelpDialog = (window) ->
+		winOpts = "centerscreen,chrome,resizable,scrollbars,dialog=no,close";
+		window.openDialog 'chrome://stylespy/content/styledialog.xul', "_blank", winOpts, uri:'chrome://stylespy/content/lib/help.txt'
+
 
 ).call module.exports
