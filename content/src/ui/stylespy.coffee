@@ -167,18 +167,34 @@ StyleSpyOnLoad = ->
 		scintillaOverlayOnLoad()
 		gView = document.getElementById "view"
 		documentService = Components.classes["@activestate.com/koDocumentService;1"].getService()
-		gDoc = documentService.createUntitledDocument "Text"
-		gDoc.addReference()
+		fileService = Components.classes["@activestate.com/koFileService;1"].createInstance(Components.interfaces.koIFileService)
+
+		createEmptyDoc = -> documentService.createUntitledDocument "Text"
 
 		if window.arguments && window.arguments[0]
 			opts = window.arguments[0]
 			if 'view' of opts
+				gDoc = createEmptyDoc()
 				done = (content) -> gDoc.buffer = content
 				progress = ko.dialogs.progress
 				style.extractAllLineStyles opts.view, progress, done
 			else if 'buffer' of opts
+				gDoc = createEmptyDoc()
 				gDoc.buffer = opts.buffer
+			else if 'uri' of opts
+				gDoc = createEmptyDoc()
+				file = fileService.getFileFromURINoCache opts.uri
+				file.open 'r'
+				try
+					gDoc.buffer = file.readfile()
+				finally
+					file.close()
 
+
+		if not gDoc
+			gDoc = createEmptyDoc()
+
+		gDoc.addReference()
 		gView.initWithBuffer gDoc.buffer, gDoc.language
 		#gDoc.addView gView
 		#gDoc.addScimoz gView.scimoz
