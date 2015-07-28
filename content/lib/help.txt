@@ -1,0 +1,91 @@
+### Welcome to Style Spy! ###
+
+#__First Things First__
+
+#The first character in every line within the Style Spy dialog is significant.
+#Every line must be entirely empty or begin with a special character.
+
+#A line that starts with a "#" is a comment. This is a comment!
+#Comments can only appear at the beginning of the file or immediately
+#before a content line (described later).
+
+#A line that begins with a "=" is a property line.
+#The general format is "=name value".
+#Everything after the first space is the property's value.
+#The only meaningful property is "language". It represents the language
+#used in the Style Spy dialog, and the value matches Komodo's language names
+#(e.g., "Python", "Tcl", "JavaScript").
+#Only one language can be set in Style Spy -- so make it count!
+
+=language JavaScript
+
+#Ahh, there. Now we're using JavaScript styles throughout.
+
+#A line that starts with a "^" is a content line. These are the lines of text
+#from the source file. Styles are applied to them and that's their entire purpose.
+
+#A line that starts with a single space is a style line. There are two style
+#lines immediately after every content line. All together they look something like this:
+
+^var x = 0;
+     1 1  1
+ 5..01000400
+
+#The style lines describe the style of the content line above them.
+#Want to see the content in a different style? Just change the style line!
+
+#The numbers in the style lines are read from top to bottom:
+
+# 1
+# 2
+# is the number 12.
+
+#
+# 4
+# is the number 4. The blank is treated like a leading zero.
+
+#The number below a content line character is that character's style.
+#In the above example, the style for "v" (in "var") is the number 5.
+
+#The "." simply means "the same as the number to my left". All characters
+#in "var" above share the same style because the style is "5..".
+#The dot style makes long lines easier to read.
+
+#Finally, a trailing empty line is represented as a "$". No "$"
+#at the end means the last line of the original content is not empty.
+#Don't worry if it's missing (or if it's there!), just be aware that it's a thing.
+
+#__From Komodo with Style__
+
+#So you want to try some spying, eh? Well, chum, now is your chance!
+#Open up a source file, open the Style Spy menu under Tools, then select
+#"Copy Style to Dialog". Boom! You're spying!
+
+#Not good enough for you? Tired of second-hand spy missions already?
+#Well, crack open an empty Style Spy dialog and start spying *on nothing!*
+#Simply open the Style Spy menu under Tools and select "Open New Dialog". Now
+#you're not just a secret agent, you're a *free* secret agent!
+
+#__The Programmer with the Golden Style__
+
+#So what exactly can you do with Style Spy? You can spy on styles!
+#Here are just a few of the few possible uses for Style Spy:
+# * You can debug your UDL styles!
+# * You can prototype a change that you'd like to see in Komodo...
+# * Then take a screenshot for your enhancement request!
+# * You can gussy up your style-related bug report with the Style Spy output!
+# * Think you know your styles? Then quiz yourself on style numbers!
+# * Tell a story using the stylized text, like "Peter and the Wolf" with colors!
+# * Pretend the style lines are spaceships and have a space war!
+
+^var x = 0; var y = function(z) {console.log(z);};
+     1 1  1     1 1         111 11      11  111
+ 5..010004005..010005.......010001......01..010...0
+
+#Whoa, look out! It's the Empire's superior forces on the left
+#versus the Rebellion's wiley resistance on the right! Pew pew pew!
+
+#__The Quantum of Style__
+
+#Have a suggestion to improve Style Spy? Well, keep it to yourself! Ha!
+#Or you can log an "issue" in GitHub: https://github.com/ervumlens/ko-stylespy
