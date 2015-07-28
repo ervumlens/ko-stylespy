@@ -1,9 +1,6 @@
+extend = (obj,name, fn = (->{})) -> obj[name] = fn() if typeof(obj[name]) is 'undefined'
 
-if typeof(ko.extensions) is 'undefined'
-	ko.extensions = {}
-
-if typeof(ko.extensions.stylespy) is 'undefined'
-	ko.extensions.stylespy = {}
-
-if typeof(ko.extensions.stylespy.style) is 'undefined'
-	ko.extensions.stylespy.style = require 'stylespy/style'
+extend ko, 'extensions'
+extend ko.extensions, 'stylespy'
+extend ko.extensions.stylespy, 'style', -> require 'stylespy/style'
+#extend ko.extensions.stylespy.ui, -> require 'stylespy/ui/stylespy'
