@@ -118,18 +118,19 @@
 		cancel: ->
 			@doCancel = true
 
-	@extractAllLineStyles = (view, progress, done) ->
+	@extractAllLineStyles = (view, progress, done, opts = {}) ->
 		return false unless view?.scimoz
 		path = view.koDoc.file?.displayPath
 
-		opts = {}
-		opts.source = path if path
+		jobOpts = {}
+		jobOpts.source = path if path
 
 		job = new Extractor view, done, opts
 
 		processor = new Processor job
 		msg = "Extracting style information. Please wait."
-		return progress(processor, msg, "Extracting Styles", true, " No data will be copied to the clipboard.");
+		cancel = opts.cancel || " No styles will be copied."
+		return progress processor, msg, "Extracting Styles", true, cancel
 
 	@extractAllLineStylesFromCurrentEditorToClipboardWithProgress = ->
 		return false unless ko?.views?.manager?.currentView?.scimoz
@@ -138,7 +139,7 @@
 		progress = ko.dialogs.progress
 		done = (content) -> require('sdk/clipboard').set content
 
-		@extractAllLineStyles view, progress, done
+		@extractAllLineStyles view, progress, done, cancel: " No styles will be copied to the clipboard."
 
 	@extractAllLineStylesFromCurrentEditorToDialogWithProgress = (window) ->
 		return false unless ko?.views?.manager?.currentView?.scimoz
