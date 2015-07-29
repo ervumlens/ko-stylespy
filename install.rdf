@@ -5,7 +5,7 @@
         <em:id>stylespy@ervumlens.github.io</em:id>
         <em:name>Style Spy</em:name>
         <em:version>0.1</em:version>
-        <em:description></em:description>
+        <em:description>View an editor's style info. Tools->Style Spy</em:description>
         <em:creator>ervumlens</em:creator>
         <em:homepageURL>ervumlens.github.io</em:homepageURL>
         <em:type>2</em:type> <!-- type=extension -->
