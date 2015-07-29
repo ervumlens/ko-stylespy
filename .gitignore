@@ -4,3 +4,4 @@ build/
 content/
 samples/
 *.manifest
+/*.xpi
