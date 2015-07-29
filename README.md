@@ -22,7 +22,7 @@ Here's a screenshot...
 ![screenshot](screenshot-1.png)
 
 ###Bad
-Okay, well, it's a work in progress. You can report a bug, make an enhancement request, or ask a question at https://github.com/ervumlens/ko-stylespy .
+Okay, well, it's a work in progress. You can report a bug, make an enhancement request, or ask a question at https://github.com/ervumlens/ko-stylespy/issues .
 
 ###Terrible
 Hey, you get what you pay for, right? :wink: If you'd like to &mdash;
