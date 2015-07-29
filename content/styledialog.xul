@@ -37,7 +37,7 @@
     <script src="chrome://komodo/content/markers.js"              type="application/x-javascript;version=1.7"/>
 
     <script src="chrome://komodo/content/library/otherdialogs.js" type="application/x-javascript;version=1.7"/>
-    <script src="chrome://stylespy/content/lib/ui/stylespy.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://stylespy/content/lib/ui/dialog.js" type="application/x-javascript;version=1.7"/>
 
     <hbox id="scintillaOverlayXul"/>
 
