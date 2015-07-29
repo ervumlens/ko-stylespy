@@ -125,7 +125,7 @@
 		jobOpts = {}
 		jobOpts.source = path if path
 
-		job = new Extractor view, done, opts
+		job = new Extractor view, done, jobOpts
 
 		processor = new Processor job
 		msg = "Extracting style information. Please wait."
