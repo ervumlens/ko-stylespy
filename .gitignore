@@ -1,0 +1,6 @@
+.komodotools
+*.komodoproject
+build/
+content/
+samples/
+*.manifest
