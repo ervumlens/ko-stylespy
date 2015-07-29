@@ -2,7 +2,7 @@
 
 #__First Things First__
 
-#The first character in every line within the Style Spy dialog is significant.
+#The first character of every line within the Style Spy dialog is significant.
 #Every line must be entirely empty or begin with a special character.
 
 #A line that starts with a "#" is a comment. This is a comment!
@@ -15,7 +15,7 @@
 #The only meaningful property is "language". It represents the language
 #used in the Style Spy dialog, and the value matches Komodo's language names
 #(e.g., "Python", "Tcl", "JavaScript").
-#Only one language can be set in Style Spy -- so make it count!
+#Only one language can be set in the Style Spy dialog -- so make it count!
 
 =language JavaScript
 
@@ -89,3 +89,245 @@
 
 #Have a suggestion to improve Style Spy? Well, keep it to yourself! Ha!
 #Or you can log an "issue" in GitHub: https://github.com/ervumlens/ko-stylespy
+
+#__Too Long; Didn't Read__
+
+^0123456789ABCDEFGHIJ
+
+ 0...................
+
+^0123456789ABCDEFGHIJ
+
+ 1...................
+
+^0123456789ABCDEFGHIJ
+
+ 2...................
+
+^0123456789ABCDEFGHIJ
+
+ 3...................
+
+^0123456789ABCDEFGHIJ
+
+ 4...................
+
+^0123456789ABCDEFGHIJ
+
+ 5...................
+
+^0123456789ABCDEFGHIJ
+
+ 6...................
+
+^0123456789ABCDEFGHIJ
+
+ 7...................
+
+^0123456789ABCDEFGHIJ
+
+ 8...................
+
+^0123456789ABCDEFGHIJ
+
+ 9...................
+
+^0123456789ABCDEFGHIJ
+ 1
+ 0...................
+
+^0123456789ABCDEFGHIJ
+ 1
+ 1...................
+
+^0123456789ABCDEFGHIJ
+ 1
+ 2...................
+
+^0123456789ABCDEFGHIJ
+ 1
+ 3...................
+
+^0123456789ABCDEFGHIJ
+ 1
+ 4...................
+
+^0123456789ABCDEFGHIJ
+ 1
+ 5...................
+
+^0123456789ABCDEFGHIJ
+ 1
+ 6...................
+
+^0123456789ABCDEFGHIJ
+ 1
+ 7...................
+
+^0123456789ABCDEFGHIJ
+ 1
+ 8...................
+
+^0123456789ABCDEFGHIJ
+ 1
+ 9...................
+
+^0123456789ABCDEFGHIJ
+ 2
+ 0...................
+
+^0123456789ABCDEFGHIJ
+ 2
+ 1...................
+
+^0123456789ABCDEFGHIJ
+ 2
+ 2...................
+
+^0123456789ABCDEFGHIJ
+ 2
+ 3...................
+
+^0123456789ABCDEFGHIJ
+ 2
+ 4...................
+
+^0123456789ABCDEFGHIJ
+ 2
+ 5...................
+
+^0123456789ABCDEFGHIJ
+ 2
+ 6...................
+
+^0123456789ABCDEFGHIJ
+ 2
+ 7...................
+
+^0123456789ABCDEFGHIJ
+ 2
+ 8...................
+
+^0123456789ABCDEFGHIJ
+ 2
+ 9...................
+
+^0123456789ABCDEFGHIJ
+ 3
+ 0...................
+
+^0123456789ABCDEFGHIJ
+ 3
+ 1...................
+
+^0123456789ABCDEFGHIJ
+ 3
+ 2...................
+
+^0123456789ABCDEFGHIJ
+ 3
+ 3...................
+
+^0123456789ABCDEFGHIJ
+ 3
+ 4...................
+
+^0123456789ABCDEFGHIJ
+ 3
+ 5...................
+
+^0123456789ABCDEFGHIJ
+ 3
+ 6...................
+
+^0123456789ABCDEFGHIJ
+ 3
+ 7...................
+
+^0123456789ABCDEFGHIJ
+ 3
+ 8...................
+
+^0123456789ABCDEFGHIJ
+ 3
+ 9...................
+
+^0123456789ABCDEFGHIJ
+ 4
+ 0...................
+
+^0123456789ABCDEFGHIJ
+ 4
+ 1...................
+
+^0123456789ABCDEFGHIJ
+ 4
+ 2...................
+
+^0123456789ABCDEFGHIJ
+ 4
+ 3...................
+
+^0123456789ABCDEFGHIJ
+ 4
+ 4...................
+
+^0123456789ABCDEFGHIJ
+ 4
+ 5...................
+
+^0123456789ABCDEFGHIJ
+ 4
+ 6...................
+
+^0123456789ABCDEFGHIJ
+ 4
+ 7...................
+
+^0123456789ABCDEFGHIJ
+ 4
+ 8...................
+
+^0123456789ABCDEFGHIJ
+ 4
+ 9...................
+
+^0123456789ABCDEFGHIJ
+ 5
+ 0...................
+
+^0123456789ABCDEFGHIJ
+ 5
+ 1...................
+
+^0123456789ABCDEFGHIJ
+ 5
+ 2...................
+
+^0123456789ABCDEFGHIJ
+ 5
+ 3...................
+
+^0123456789ABCDEFGHIJ
+ 5
+ 4...................
+
+^0123456789ABCDEFGHIJ
+ 5
+ 5...................
+
+^0123456789ABCDEFGHIJ
+ 5
+ 6...................
+
+^0123456789ABCDEFGHIJ
+ 5
+ 7...................
+
+^0123456789ABCDEFGHIJ
+ 5
+ 8...................
+
+^0123456789ABCDEFGHIJ
+ 5
+ 9...................
