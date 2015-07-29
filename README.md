@@ -10,7 +10,7 @@ Style Spy simplifies debugging and prototyping styles used in the Komodo editor.
 The extension XPI is available at https://ervumlens.github.io/ko-stylespy .
 
 ###How
-Once installed, the extension adds a new `Style Spy` menu under the main `Tools `menu.
+Once installed, the extension adds a new `Style Spy` menu under the main `Tools` menu.
 There is a `Help` item that explains how Style Spy is used.
 
 
