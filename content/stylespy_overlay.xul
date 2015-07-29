@@ -13,10 +13,18 @@
   <script src="chrome://stylespy/content/lib/index.js"/>
 
   <commandset id="allcommands">
-	<command id="StyleSpy:OpenNewDialog" oncommand="ko.extensions.stylespy.style.openNewDialog(window)"/>
-    <command id="StyleSpy:CopyCurrentEditorStyleToDialog" oncommand="ko.extensions.stylespy.style.extractAllLineStylesFromCurrentEditorToDialogWithProgress(window)"/>
-    <command id="StyleSpy:CopyCurrentEditorStyleToClipboard" oncommand="ko.extensions.stylespy.style.extractAllLineStylesFromCurrentEditorToClipboardWithProgress()"/>
-	<command id="StyleSpy:OpenHelpDialog" oncommand="ko.extensions.stylespy.style.openHelpDialog(window)"/>
+    <command id="StyleSpy:CopyCurrentEditorStyleToDialog"
+			 oncommand="ko.extensions.stylespy.extractAllLineStylesFromCurrentEditorToDialogWithProgress(window)"
+	/>
+    <command id="StyleSpy:CopyCurrentEditorStyleToClipboard"
+			 oncommand="ko.extensions.stylespy.extractAllLineStylesFromCurrentEditorToClipboardWithProgress()"
+	/>
+	<command id="StyleSpy:OpenNewDialog"
+			 oncommand="ko.extensions.stylespy.openNewDialog(window)"
+	/>
+	<command id="StyleSpy:OpenHelpDialog"
+			 oncommand="ko.extensions.stylespy.openHelpDialog(window)"
+	/>
   </commandset>
 
   <menupopup id="popup_tools">
