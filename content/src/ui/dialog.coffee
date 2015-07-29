@@ -98,15 +98,17 @@ class StyleWatcher
 		@styleComment line
 
 	styleContent: (line) ->
-		#Return the number of lines consumed
-		consumed = 1
+		#Return the number of lines styled/consumed
 		style0 = @lineText line + 1, false
 		style1 = @lineText line + 2, false
 
-		#Bad styles? Only consume the content line.
-		return consumed unless @areStyleLines(style0, style1)
-
-		consumed = 3
+		#Bad styles? Only style/consume the content line.
+		if not @areStyleLines style0, style1
+			firstPos = @scimoz.positionFromLine line
+			lastPos = @scimoz.positionFromLine line + 1
+			@scimoz.startStyling firstPos, 0
+			@scimoz.setStyling lastPos - firstPos, STYLE_COMMENT
+			return 1
 
 		styleNumbers = @toStyleNumbers style0, style1
 		#spylog.warn "StyleNumbers: #{styleNumbers.join(',')}"
@@ -126,7 +128,7 @@ class StyleWatcher
 		@scimoz.startStyling firstPos, 0
 		@scimoz.setStyling lastPos - firstPos, STYLE_STYLES
 
-		consumed
+		3 #content line and two style lines
 
 	areStyleLines: (style0, style1) ->
 		#Allow style 0 to be empty.
