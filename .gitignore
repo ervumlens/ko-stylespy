@@ -4,3 +4,4 @@ build/
 .komodotools/
 *.komodoproject
 samples/
+content/lib/
