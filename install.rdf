@@ -4,10 +4,10 @@
     <Description about="urn:mozilla:install-manifest">
         <em:id>stylespy@ervumlens.github.io</em:id>
         <em:name>Style Spy</em:name>
-        <em:version>0.1</em:version>
+        <em:version>0.2.0</em:version>
         <em:description>View an editor's style info. Tools->Style Spy</em:description>
         <em:creator>ervumlens</em:creator>
-        <em:homepageURL>ervumlens.github.io</em:homepageURL>
+        <em:homepageURL>https://ervumlens.github.io/ko-stylespy</em:homepageURL>
         <em:type>2</em:type> <!-- type=extension -->
 
         <em:targetApplication>
