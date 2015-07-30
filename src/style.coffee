@@ -146,18 +146,28 @@
 		view = ko.views.manager.currentView
 		progress = ko.dialogs.progress
 		done = (content) ->
-			winOpts = "centerscreen,chrome,resizable,scrollbars,dialog=no,close";
-			window.openDialog 'chrome://stylespy/content/styledialog.xul', "_blank", winOpts, buffer: content
+			winOpts = 'centerscreen,chrome,resizable,scrollbars,dialog=no,close';
+			args = source: content:content, type:'buffer'
+			window.openDialog 'chrome://stylespy/content/styledialog.xul', '_blank', winOpts, args
 
 		@extractAllLineStyles view, progress, done
 
 	@openNewDialog = (window) ->
-		winOpts = "centerscreen,chrome,resizable,scrollbars,dialog=no,close";
-		window.openDialog 'chrome://stylespy/content/styledialog.xul', "_blank", winOpts
+		winOpts = 'centerscreen,chrome,resizable,scrollbars,dialog=no,close';
+		window.openDialog 'chrome://stylespy/content/styledialog.xul', '_blank', winOpts
 
 	@openHelpDialog = (window) ->
-		winOpts = "centerscreen,chrome,resizable,scrollbars,dialog=no,close";
-		window.openDialog 'chrome://stylespy/content/styledialog.xul', "_blank", winOpts, uri:'chrome://stylespy/content/doc/help.txt'
+		winOpts = 'centerscreen,chrome,resizable,scrollbars,dialog=no,close';
+		args = source: content:'chrome://stylespy/content/doc/help.txt', type:'uri'
+		window.openDialog 'chrome://stylespy/content/styledialog.xul', '_blank', winOpts, args
 
+	@openSwatchDialog = (window) ->
+		winOpts = 'centerscreen,chrome,resizable,scrollbars,dialog=no,close';
+		args = sources: []
+		lang = ko?.views?.manager?.currentView?.koDoc?.language
+		if lang
+			args.sources.push content:"=language #{lang}", type: 'buffer'
+		args.sources.push content: 'chrome://stylespy/content/doc/swatch.txt', type: 'uri'
+		window.openDialog 'chrome://stylespy/content/styledialog.xul', '_blank', winOpts, args
 
 ).call module.exports

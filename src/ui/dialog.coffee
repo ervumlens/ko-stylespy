@@ -7,7 +7,7 @@ STYLE_UNKNOWN = 0
 STYLE_COMMENT = 2
 STYLE_STYLES = 2
 
-xtk.include("domutils");
+xtk.include 'domutils'
 
 gDoc = null
 gView = null
@@ -186,47 +186,51 @@ class StyleWatcher
 			match = hitRx.exec text
 			if match
 				hitLang = match[1]
-				#spylog.warn "Found language #{hitLang} in `#{text}`"
 				break
 			else if text.indexOf('^') is 0
-				#spylog.warn "No language found before line #{line}"
 				break
-			#else
-			#	spylog.warn "No language found in `#{text}`"
 
 		hitLang
+
+
+appendToStyleBuffer = (buffer, source) ->
+	switch source.type
+		when 'view'
+			done = (content) -> buffer.push content
+			progress = ko.dialogs.progress
+			style.extractAllLineStyles opts.view, progress, done
+		when 'buffer'
+			buffer.push source.content
+		when 'uri'
+			fileService = Components.classes['@activestate.com/koFileService;1'].createInstance(Components.interfaces.koIFileService)
+			file = fileService.getFileFromURINoCache source.content
+			file.open 'r'
+			try
+				buffer.push file.readfile()
+			finally
+				file.close()
 
 StyleSpyOnLoad = ->
 	try
 		scintillaOverlayOnLoad()
-		gView = document.getElementById "view"
-		documentService = Components.classes["@activestate.com/koDocumentService;1"].getService()
+		gView = document.getElementById 'view'
+		documentService = Components.classes['@activestate.com/koDocumentService;1'].getService()
 
-		createEmptyDoc = -> documentService.createUntitledDocument "Text"
+		gDoc = documentService.createUntitledDocument 'Text'
 
-		if window.arguments && window.arguments[0]
+		#The output is a composite from potentially multiple sites.
+		#Pull everything together in a local buffer before
+		#passing on to the doc.
+		buffer = []
+
+		if window.arguments and window.arguments.length > 0
 			opts = window.arguments[0]
-			if 'view' of opts
-				gDoc = createEmptyDoc()
-				done = (content) -> gDoc.buffer = content
-				progress = ko.dialogs.progress
-				style.extractAllLineStyles opts.view, progress, done
-			else if 'buffer' of opts
-				gDoc = createEmptyDoc()
-				gDoc.buffer = opts.buffer
-			else if 'uri' of opts
-				fileService = Components.classes["@activestate.com/koFileService;1"].createInstance(Components.interfaces.koIFileService)
-				gDoc = createEmptyDoc()
-				file = fileService.getFileFromURINoCache opts.uri
-				file.open 'r'
-				try
-					gDoc.buffer = file.readfile()
-				finally
-					file.close()
+			if opts.sources
+				appendToStyleBuffer(buffer, source) for source in opts.sources
+			else if opts.source
+				appendToStyleBuffer buffer, opts.source
 
-
-		if not gDoc
-			gDoc = createEmptyDoc()
+		gDoc.buffer = buffer.join('\n');
 
 		gDoc.addReference()
 		gView.initWithBuffer gDoc.buffer, gDoc.language
@@ -235,13 +239,13 @@ StyleSpyOnLoad = ->
 
 		if navigator.platform.match /^Mac/
 			#Bug 96209, bug 99277 - hack around scintilla display problems on the mac.
-			setTimeout (-> gView.scintilla.setAttribute "flex", "2"), 1
+			setTimeout (-> gView.scintilla.setAttribute 'flex', '2'), 1
 	catch e
 		spylog.error e
 
 StyleSpyOnUnload = ->
-	watcher.release()
+	watcher.release() if watcher
     #The "close" method ensures the scintilla view is properly cleaned up.
-	gView.close()
-	gDoc.releaseReference()
+	gView.close() if gView
+	gDoc.releaseReference() if gDoc
 	scintillaOverlayOnUnload()
