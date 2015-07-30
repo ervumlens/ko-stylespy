@@ -1,33 +1,33 @@
-# Style Spy
 
-###What
+###The Basics
 Style Spy is an extension for [Komodo IDE](http://komodoide.com/) and [Komodo Edit](http://komodoide.com/komodo-edit/).
+It simplifies debugging and prototyping styles used in the Komodo editor.
 
-###Why
-Style Spy simplifies debugging and prototyping styles used in the Komodo editor.
-
-###Where
+###Installation
 The extension XPI is available at https://ervumlens.github.io/ko-stylespy .
 
-###How
 Once installed, the extension adds a new `Style Spy` menu under the main `Tools` menu.
-There is a `Help` item that explains how Style Spy is used.
 
+###Usage
 
-###When
-Today. *Right now*.
+The best place to learn about Style Spy is in Style Spy itself.
+Open the `Help` item under the `Tools` &rarr; `Style Spy` menu to read about functionality.
 
-###SHOW
-Here's a screenshot...
-![screenshot](screenshot-1.png)
+Here is a brief animation showing Style Spy in use.
+![Animation of Style Spy in use.](screenshot-1.gif)
 
-###Bad
-Okay, well, it's a work in progress. You can report a bug, make an enhancement request, or ask a question at https://github.com/ervumlens/ko-stylespy/issues/new .
+###Build
 
-###Terrible
-Hey, you get what you pay for, right? :wink: If you'd like to &mdash;
+Building Style Spy requires the [CoffeeScript](http://www.coffeescript.com) compiler available from the environment `PATH` and an installation of Komodo Edit or IDE.
+The [`ko-stylespy`](https://github.com/ervumlens/ko-stylespy) repository includes Komodo macros that build the extension.
+Just clone the repo, open a new Komodo project from within the `ko-stylespy` directory, and run the macros from the Komodo toolbox.
 
-##Horrible
-Sure. Everyone has a right to an opinion, but really if it's *that* &mdash;
+###Questions? Problems? Suggestions?
 
-#BARF
+Report bugs, make enhancement requests, or ask questions at https://github.com/ervumlens/ko-stylespy/issues . Just click on the big "New Issue" button.
+
+###Thank Yous
+
+Thanks to Komodo Edit's developers and contributors, past and present, for making an editor that's enjoyable to use.
+
+Thanks to Jeremy Ashkenas for making CoffeeScript. Apparently the JavaScript world doesn't *have* to revolve around curly braces. :wink:
