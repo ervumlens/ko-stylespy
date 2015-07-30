@@ -30,4 +30,4 @@ Report bugs, make enhancement requests, or ask questions at https://github.com/e
 
 Thanks to Komodo Edit's developers and contributors, past and present, for making an editor that's enjoyable to use.
 
-Thanks to Jeremy Ashkenas for making CoffeeScript. Apparently the JavaScript world doesn't *have* to revolve around curly braces. :wink:
+Thanks to Jeremy Ashkenas for creating CoffeeScript.
