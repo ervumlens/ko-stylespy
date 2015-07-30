@@ -12,7 +12,7 @@
     "var projectDir = ko.interpolate.interpolateString('%p');", 
     "", 
     "var compileCoffeeScript = function(callback) {", 
-    "  ko.run.runEncodedCommand(window, 'coffee -b -o %p/content/lib/ -c %p/content/src/', callback);", 
+    "  ko.run.runEncodedCommand(window, 'coffee -b -o %p/content/lib/ -c %p/src/', callback);", 
     "}", 
     "", 
     "var buildExtension = function(callback) {", 
