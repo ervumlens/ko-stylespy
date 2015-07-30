@@ -198,7 +198,7 @@ appendToStyleBuffer = (buffer, source) ->
 		when 'view'
 			done = (content) -> buffer.push content
 			progress = ko.dialogs.progress
-			style.extractAllLineStyles opts.view, progress, done
+			style.extractAllLineStyles source.content, progress, done
 		when 'buffer'
 			buffer.push source.content
 		when 'uri'
