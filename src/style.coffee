@@ -1,6 +1,12 @@
 
 (->
-	@version = '0.0.1'
+	@updateEditorViewOnlyCommands = (cmdset) ->
+		if ko?.views?.manager?.currentView?.scimoz?
+			for child in cmdset.childNodes
+				child.removeAttribute 'disabled'
+		else
+			for child in cmdset.childNodes
+				child.setAttribute 'disabled', 'true'
 
 	flatten = (text, styles) ->
 		#turn a list of numbers into tall text
