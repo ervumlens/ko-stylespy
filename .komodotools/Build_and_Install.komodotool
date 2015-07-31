@@ -17,7 +17,7 @@
     "}", 
     "", 
     "var compileCoffeeScript = function(callback) {", 
-    "  ko.run.runEncodedCommand(window, 'coffee -b -o %p/content/lib/ -c %p/src/', callback);", 
+    "  ko.run.runEncodedCommand(window, 'coffee -o %p/content/lib/ -c %p/src/', callback);", 
     "}", 
     "", 
     "var buildExtension = function(callback) {", 
