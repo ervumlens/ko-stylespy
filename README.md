@@ -18,7 +18,7 @@ Here is a brief animation showing Style Spy in use.
 
 ###Build
 
-Building Style Spy requires the [CoffeeScript](http://www.coffeescript.com) compiler available from the environment `PATH` and an installation of Komodo Edit or IDE.
+Building Style Spy requires the [CoffeeScript](http://coffeescript.org) compiler available from the environment `PATH` and an installation of Komodo Edit or IDE.
 The [`ko-stylespy`](https://github.com/ervumlens/ko-stylespy) repository includes Komodo macros that build the extension.
 Just clone the repo, open a new Komodo project from within the `ko-stylespy` directory, and run the macros from the Komodo toolbox.
 
