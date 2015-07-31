@@ -1,5 +1,9 @@
 <?xml version="1.0"?>
-
+<!--
+This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file, You can obtain one at
+http://mozilla.org/MPL/2.0/.
+-->
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
@@ -39,13 +43,31 @@
     <script src="chrome://komodo/content/library/otherdialogs.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://stylespy/content/lib/ui/dialog.js" type="application/x-javascript;version=1.7"/>
 
-    <hbox id="scintillaOverlayXul"/>
-
-    <vbox flex="1">
-        <view type="buffer"
-              id="view"
-              flex="1"
-              pluginPaintHack="true"
-              />
-    </vbox>
+	<hbox id="scintillaOverlayXul"/>
+	<tabbox flex="1">
+		<tabpanels flex="1">
+			<tabpanel>
+				<vbox flex="1">
+					<view type="buffer"
+						  id="sourceView"
+						  flex="1"
+						  pluginPaintHack="true"
+						  />
+				</vbox>
+			</tabpanel>
+			<tabpanel>
+				<vbox flex="1">
+					<view type="buffer"
+						  id="previewView"
+						  flex="1"
+						  pluginPaintHack="true"
+						  />
+				</vbox>
+			</tabpanel>
+		</tabpanels>
+		<tabs onselect="StyleSpyOnTabSelected(this, event);">
+			<tab id="tab_source" label="Source"/>
+			<tab id="tab_preview" label="Preview"/>
+		</tabs>
+	</tabbox>
 </dialog>
