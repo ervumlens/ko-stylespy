@@ -10,10 +10,10 @@ http://mozilla.org/MPL/2.0/.
 
 	class @View
 		constructor: (@view, content) ->
-			@view.initWithBuffer content, "Text"
+			@view.initWithBuffer content, 'Text'
 			@scimoz = @view.scimoz
 			@handler = (args...) => @onUpdate(args...)
-			@register()
+			@active = false
 
 		applyMacHack: ->
 			setTimeout (=> @view.scintilla.setAttribute 'flex', '2'), 1
@@ -25,7 +25,11 @@ http://mozilla.org/MPL/2.0/.
 			@view.close()
 
 		activate: ->
+			@active = true
+
 		passivate: ->
+			@active = false
+
 		onUpdate: ->
 
 		styleAllVisible: ->
@@ -151,7 +155,7 @@ http://mozilla.org/MPL/2.0/.
 		lineText: (line, trimRight = true) ->
 			start = @scimoz.positionFromLine line
 			end = @scimoz.positionFromLine line + 1
-			text = @scimoz.text.substr(start, end - start)
+			text = @scimoz.getTextRange(start, end)
 			text = text.trimRight() if trimRight
 			text
 
@@ -174,20 +178,65 @@ http://mozilla.org/MPL/2.0/.
 
 
 	class @SourceView extends @View
+		activate: ->
+			super
+			@register()
+
 		onUpdate: ->
 			try
-				@updateLanguage()
-				@styleAllVisible()
+				if @active
+					@updateLanguage()
+					@styleAllVisible()
 			finally
 				@register()
 
 	class @PreviewView extends @View
 		activate: (sourceView) ->
+			super
+			@scimoz.readOnly = false
+			@scimoz.undoCollection = false
 			sourceScimoz = sourceView.scimoz
 			@scimoz.text = sourceScimoz.text
+
+			@progressElement.setAttribute 'value', 0
+			@progressElement.setAttribute 'hidden', 'false'
+
+			{Ci, Cu} = require 'chrome'
+			{Services} = Cu.import 'resource://gre/modules/Services.jsm'
+
+			enqueue = (step) ->
+				Services.tm.currentThread.dispatch step, Ci.nsIThread.DISPATCH_NORMAL
+
+			previewToSource = []
+
+			lineCount = @scimoz.lineCount
+			line = lineCount - 1
+			inc = 100 / lineCount
+
+			@view.language = sourceView.view.language
 			@scimoz.readOnly = true
-			@scimoz.firstVisibleLine = sourceScimoz.firstVisibleLine
-			linesOnScreen = @scimoz.linesOnScreen
+			step = =>
+				return unless @active
+				if line >= 0
+					@progressElement.setAttribute 'value', (lineCount - line) * inc
+					startPos = @scimoz.positionFromLine line
+					@scimoz.readOnly = false
+					if @scimoz.getCharAt(startPos) isnt 94 #"^"
+						endPos = @scimoz.positionFromLine line + 1
+						@scimoz.deleteRange startPos, endPos - startPos
+					else
+						@scimoz.deleteRange startPos, 1
+						previewToSource.unshift line
+					@scimoz.readOnly = true
+					--line
+					enqueue step
+				else
+					@progressElement.setAttribute 'hidden', 'true'
+
+			enqueue step
+
+			#@scimoz.firstVisibleLine = sourceScimoz.firstVisibleLine
+			#linesOnScreen = @scimoz.linesOnScreen
 			#The first visible content line is the first true visible line.
 			#Look for it f
 ).call module.exports

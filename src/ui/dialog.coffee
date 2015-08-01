@@ -59,7 +59,8 @@ appendToStyleBuffer = (buffer, source) ->
 		buffer = bufferParts.join('\n');
 
 		sourceView = new SourceView document.getElementById('sourceView'), buffer
-		previewView = new SourceView document.getElementById('previewView'), buffer
+		previewView = new PreviewView document.getElementById('previewView'), buffer
+		previewView.progressElement = document.getElementById('previewProgress')
 
 		if navigator.platform.match /^Mac/
 			#Bug 96209, bug 99277 - hack around scintilla display problems on the mac.
@@ -68,21 +69,28 @@ appendToStyleBuffer = (buffer, source) ->
 
 		initialized = true
 
+		sourceView.activate()
+
 	catch e
 		spylog.error e
 
 @StyleSpyOnTabSelected = (tabs, event)->
 	return unless initialized
 
-	if tabs.selectedIndex is TAB_PREVIEW
-		sourceView.passivate()
-		previewView.activate(sourceView)
-	else
-		previewView.passivate()
-		sourceView.activate()
+	switch tabs.selectedIndex
+		when TAB_PREVIEW
+			sourceView.passivate()
+			previewView.activate(sourceView)
+		when TAB_SOURCE
+			previewView.passivate()
+			sourceView.activate()
 
 
 @StyleSpyOnUnload = ->
-	sourceView.close() if sourceView
-	previewView.close() if previewView
+	if sourceView
+		sourceView.passivate()
+		sourceView.close()
+	if previewView
+		previewView.passivate()
+		previewView.close()
 	scintillaOverlayOnUnload()
