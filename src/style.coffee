@@ -72,7 +72,7 @@ http://mozilla.org/MPL/2.0/.
 			scimoz = @view.scimoz
 			start = scimoz.positionFromLine lineNo
 			end = scimoz.positionFromLine lineNo + 1
-			text = scimoz.text.substr(start, end - start)
+			text = scimoz.getTextRange(start, end)
 			@desc = text
 			styles = scimoz.getStyleRange(start, end)
 			@lines.push "# line #{lineNo + 1}"
