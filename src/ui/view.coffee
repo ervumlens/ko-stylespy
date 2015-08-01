@@ -191,12 +191,23 @@ http://mozilla.org/MPL/2.0/.
 				@register()
 
 	class @PreviewView extends @View
+
+		constructor: ->
+			super
+			@scimoz.undoCollection = false
+			@scimoz.readOnly = true
+
+		writeOp: (fn) ->
+			@scimoz.readOnly = false
+			fn()
+			@scimoz.readOnly = true
+
 		activate: (sourceView) ->
 			super
-			@scimoz.readOnly = false
-			@scimoz.undoCollection = false
 			sourceScimoz = sourceView.scimoz
-			@scimoz.text = sourceScimoz.text
+			@writeOp =>
+				@scimoz.text = "Please wait..."
+				@view.language = sourceView.view.language
 
 			@progressElement.setAttribute 'value', 0
 			@progressElement.setAttribute 'hidden', 'false'
@@ -207,34 +218,59 @@ http://mozilla.org/MPL/2.0/.
 			enqueue = (step) ->
 				Services.tm.currentThread.dispatch step, Ci.nsIThread.DISPATCH_NORMAL
 
-			previewToSource = []
+			@previewToSource = []
+			@sourceToPreview = []
 
-			lineCount = @scimoz.lineCount
+			#Work directly on the text, not through scimoz functions.
+			#The performance difference is significant.
+			sourceLines = switch sourceScimoz.eOLMode
+				when 0 then sourceScimoz.text.split '\r\n'
+				when 1 then sourceScimoz.text.split '\r'
+				when 2 then sourceScimoz.text.split '\n'
+
+			lineCount = sourceLines.length
 			line = lineCount - 1
 			inc = 100 / lineCount
 
-			@view.language = sourceView.view.language
-			@scimoz.readOnly = true
-			step = =>
+			firstStep = =>
+				#TODO the first step needs to check for the $,
+				#then defer to the next-step function.
+				enqueue nextStep
+
+			nextStep = =>
 				return unless @active
 				if line >= 0
-					@progressElement.setAttribute 'value', (lineCount - line) * inc
-					startPos = @scimoz.positionFromLine line
-					@scimoz.readOnly = false
-					if @scimoz.getCharAt(startPos) isnt 94 #"^"
-						endPos = @scimoz.positionFromLine line + 1
-						@scimoz.deleteRange startPos, endPos - startPos
+					lineText = sourceLines[line]
+					if lineText[0] isnt '^'
+						sourceLines.splice(line, 1)
 					else
-						@scimoz.deleteRange startPos, 1
-						previewToSource.unshift line
-					@scimoz.readOnly = true
+						sourceLines[line] = lineText[1...]
+						@previewToSource.unshift line
+
+					@progressElement.setAttribute 'value', (lineCount - line) * inc
 					--line
-					enqueue step
+					enqueue nextStep
 				else
+					#Done!
+					previewText = switch @scimoz.eOLMode
+						when 0 then sourceLines.join '\r\n'
+						when 1 then sourceLines.join '\r'
+						when 2 then sourceLines.join '\n'
+
+					@writeOp =>
+						@scimoz.text = previewText
+
 					@progressElement.setAttribute 'hidden', 'true'
 
-			enqueue step
+					#Give ourselves a way to map to and from the original.
+					for sourceLine in @sourceToPreview
+						@previewToSource[@sourceToPreview[sourceLine]] = sourceLine
 
+
+			enqueue firstStep
+
+			#TODO Find the next visible content line in the source.
+			#Then move ourselves to the preview equivalent.
 			#@scimoz.firstVisibleLine = sourceScimoz.firstVisibleLine
 			#linesOnScreen = @scimoz.linesOnScreen
 			#The first visible content line is the first true visible line.
