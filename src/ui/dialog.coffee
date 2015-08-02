@@ -59,8 +59,9 @@ appendToStyleBuffer = (buffer, source) ->
 		buffer = bufferParts.join('\n');
 
 		sourceView = new SourceView document.getElementById('sourceView'), buffer
-		previewView = new PreviewView document.getElementById('previewView'), buffer
+		previewView = new PreviewView document.getElementById('previewView')
 		previewView.progressElement = document.getElementById('previewProgress')
+		previewView.sourceView = sourceView
 
 		if navigator.platform.match /^Mac/
 			#Bug 96209, bug 99277 - hack around scintilla display problems on the mac.
@@ -80,7 +81,7 @@ appendToStyleBuffer = (buffer, source) ->
 	switch tabs.selectedIndex
 		when TAB_PREVIEW
 			sourceView.passivate()
-			previewView.activate(sourceView)
+			previewView.activate()
 		when TAB_SOURCE
 			previewView.passivate()
 			sourceView.activate()

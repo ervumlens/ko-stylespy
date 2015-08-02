@@ -8,18 +8,29 @@ http://mozilla.org/MPL/2.0/.
 	STYLE_COMMENT = 2
 	STYLE_STYLES = 2
 
+	spylog = require('ko/logging').getLogger 'style-spy'
+
 	class @View
 		constructor: (@view, content) ->
-			@view.initWithBuffer content, 'Text'
+			@view.initWithBuffer(content or '', 'Text')
 			@scimoz = @view.scimoz
-			@handler = (args...) => @onUpdate(args...)
 			@active = false
 
 		applyMacHack: ->
 			setTimeout (=> @view.scintilla.setAttribute 'flex', '2'), 1
 
-		register: ->
-			@view.registerUpdateUICallback @handler
+		registerOnUpdate: ->
+			@view.registerUpdateUICallback (args...) => @onUpdate(args...)
+
+		onUpdate: ->
+
+		registerOnModified: ->
+			@view.addModifiedHandler @onModified, @, 100
+
+		unregisterOnModified: ->
+			@view.removeModifiedHandler @onModified
+
+		onModified: ->
 
 		close: ->
 			@view.close()
@@ -29,8 +40,6 @@ http://mozilla.org/MPL/2.0/.
 
 		passivate: ->
 			@active = false
-
-		onUpdate: ->
 
 		styleAllVisible: ->
 			#TODO only style the visible columns
@@ -178,9 +187,16 @@ http://mozilla.org/MPL/2.0/.
 
 
 	class @SourceView extends @View
+		constructor: ->
+			super
+
+			#"Dirty" in relation to the preview
+			@dirty = true
+
 		activate: ->
 			super
-			@register()
+			@registerOnUpdate()
+			@registerOnModified()
 
 		onUpdate: ->
 			try
@@ -188,7 +204,10 @@ http://mozilla.org/MPL/2.0/.
 					@updateLanguage()
 					@styleAllVisible()
 			finally
-				@register()
+				@registerOnUpdate()
+
+		onModified: ->
+			@dirty = true
 
 	class @PreviewView extends @View
 
@@ -202,12 +221,22 @@ http://mozilla.org/MPL/2.0/.
 			fn()
 			@scimoz.readOnly = true
 
-		activate: (sourceView) ->
+		activate: ->
 			super
-			sourceScimoz = sourceView.scimoz
+			if @sourceView.dirty or @view.scimoz.length is 0
+				@recreate()
+			else
+				@scrollToSource()
+
+		recreate: ->
+			@previewToSource = []
+			@sourceToPreview = []
+
+			sourceScimoz = @sourceView.scimoz
+
 			@writeOp =>
 				@scimoz.text = "Please wait..."
-				@view.language = sourceView.view.language
+				@view.language = @sourceView.view.language
 
 			@progressElement.setAttribute 'value', 0
 			@progressElement.setAttribute 'hidden', 'false'
@@ -217,9 +246,6 @@ http://mozilla.org/MPL/2.0/.
 
 			enqueue = (step) ->
 				Services.tm.currentThread.dispatch step, Ci.nsIThread.DISPATCH_NORMAL
-
-			@previewToSource = []
-			@sourceToPreview = []
 
 			#Work directly on the text, not through scimoz functions.
 			#The performance difference is significant.
@@ -262,17 +288,18 @@ http://mozilla.org/MPL/2.0/.
 
 					@progressElement.setAttribute 'hidden', 'true'
 
-					#Give ourselves a way to map to and from the original.
+					#Give ourselves a way to map to and from the source.
 					for sourceLine in @sourceToPreview
 						@previewToSource[@sourceToPreview[sourceLine]] = sourceLine
 
+					@scrollToSource
+
+					#We're fully sync'd, so the source is no longer dirty.
+					@sourceView.dirty = false
 
 			enqueue firstStep
 
-			#TODO Find the next visible content line in the source.
-			#Then move ourselves to the preview equivalent.
-			#@scimoz.firstVisibleLine = sourceScimoz.firstVisibleLine
-			#linesOnScreen = @scimoz.linesOnScreen
-			#The first visible content line is the first true visible line.
-			#Look for it f
+		scrollToSource: ->
+
+
 ).call module.exports
