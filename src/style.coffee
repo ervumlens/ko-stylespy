@@ -142,25 +142,34 @@ http://mozilla.org/MPL/2.0/.
 		cancel = opts.cancel || " No styles will be copied."
 		return progress processor, msg, "Extracting Styles", true, cancel
 
-	@extractAllLineStylesFromCurrentEditorToClipboardWithProgress = ->
+	@extractAllLineStylesFromCurrentEditorToClipboardWithProgress = (window) ->
 		return false unless ko?.views?.manager?.currentView?.scimoz
 
-		view = ko.views.manager.currentView
-		progress = ko.dialogs.progress
-		done = (content) -> require('sdk/clipboard').set content
+		op = =>
+			view = ko.views.manager.currentView
+			progress = ko.dialogs.progress
+			done = (content) ->
+				require('sdk/clipboard').set content
+				window.setTimeout (-> window.alert 'Style successfully copied to clipboard.'), 1
 
-		@extractAllLineStyles view, progress, done, cancel: " No styles will be copied to the clipboard."
+			@extractAllLineStyles view, progress, done, cancel: " No styles will be copied to the clipboard."
+
+		window.setTimeout op, 1
 
 	@extractAllLineStylesFromCurrentEditorToDialogWithProgress = (window) ->
 		return false unless ko?.views?.manager?.currentView?.scimoz
-		view = ko.views.manager.currentView
-		progress = ko.dialogs.progress
-		done = (content) ->
-			winOpts = 'centerscreen,chrome,resizable,scrollbars,dialog=no,close';
-			args = source: content:content, type:'buffer'
-			window.openDialog 'chrome://stylespy/content/styledialog.xul', '_blank', winOpts, args
 
-		@extractAllLineStyles view, progress, done
+		op = =>
+			view = ko.views.manager.currentView
+			progress = ko.dialogs.progress
+			done = (content) ->
+				winOpts = 'centerscreen,chrome,resizable,scrollbars,dialog=no,close';
+				args = source: content:content, type:'buffer'
+				window.openDialog 'chrome://stylespy/content/styledialog.xul', '_blank', winOpts, args
+
+			@extractAllLineStyles view, progress, done
+
+		window.setTimeout op, 1
 
 	@openNewDialog = (window) ->
 		winOpts = 'centerscreen,chrome,resizable,scrollbars,dialog=no,close';

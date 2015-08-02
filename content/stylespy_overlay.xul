@@ -21,7 +21,7 @@
 			   oncommand="ko.extensions.stylespy.extractAllLineStylesFromCurrentEditorToDialogWithProgress(window)"
 			   disabled="true"/>
 	  <command id="StyleSpy:CopyCurrentEditorStyleToClipboard"
-			   oncommand="ko.extensions.stylespy.extractAllLineStylesFromCurrentEditorToClipboardWithProgress()"
+			   oncommand="ko.extensions.stylespy.extractAllLineStylesFromCurrentEditorToClipboardWithProgress(window)"
 			   disabled="true"/>
 	</commandset>
 	<command id="StyleSpy:OpenNewDialog"
