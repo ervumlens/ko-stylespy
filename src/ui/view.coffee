@@ -354,7 +354,7 @@ http://mozilla.org/MPL/2.0/.
 
 		createSwatchLines: ->
 			lines = ['HEADER 0', '']
-			message = '0123456789ABCDEFabcdef...___===\\\\\\---///\'\'""(){}[]'
+			message = '0123456789ABCDEFabcdef...___|||&&&^^^***===\\\\\\---///\'\'""(){}[]'
 			lines.push "Style  #{i} #{message}" for i in [0 ... 10]
 			lines.push "Style #{i} #{message}" for i in [10 ... 70]
 			lines
