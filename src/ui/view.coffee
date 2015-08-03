@@ -41,6 +41,29 @@ http://mozilla.org/MPL/2.0/.
 		passivate: ->
 			@active = false
 
+	class @SourceView extends @View
+		constructor: ->
+			super
+
+			#"Dirty" in relation to the preview
+			@dirty = true
+
+		activate: ->
+			super
+			@registerOnUpdate()
+			@registerOnModified()
+
+		onUpdate: ->
+			try
+				if @active
+					@updateLanguage()
+					@styleAllVisible()
+			finally
+				@registerOnUpdate()
+
+		onModified: ->
+			@dirty = true
+
 		styleAllVisible: ->
 			#TODO only style the visible columns
 			firstLine = @scimoz.firstVisibleLine
@@ -185,30 +208,6 @@ http://mozilla.org/MPL/2.0/.
 
 			hitLang
 
-
-	class @SourceView extends @View
-		constructor: ->
-			super
-
-			#"Dirty" in relation to the preview
-			@dirty = true
-
-		activate: ->
-			super
-			@registerOnUpdate()
-			@registerOnModified()
-
-		onUpdate: ->
-			try
-				if @active
-					@updateLanguage()
-					@styleAllVisible()
-			finally
-				@registerOnUpdate()
-
-		onModified: ->
-			@dirty = true
-
 	class @PreviewView extends @View
 
 		constructor: ->
@@ -267,7 +266,7 @@ http://mozilla.org/MPL/2.0/.
 				return unless @active
 				if line >= 0
 					lineText = sourceLines[line]
-					if lineText[0] isnt '^'
+					if lineText.charCodeAt(0) isnt 94 #'^'
 						sourceLines.splice(line, 1)
 					else
 						sourceLines[line] = lineText[1...]
@@ -286,20 +285,37 @@ http://mozilla.org/MPL/2.0/.
 					@writeOp =>
 						@scimoz.text = previewText
 
-					@progressElement.setAttribute 'hidden', 'true'
-
 					#Give ourselves a way to map to and from the source.
-					for sourceLine in @sourceToPreview
-						@previewToSource[@sourceToPreview[sourceLine]] = sourceLine
+					for previewLine in [0 ... @previewToSource.length]
+						@sourceToPreview[@previewToSource[previewLine]] = previewLine
 
-					@scrollToSource
+					@scrollToSource()
 
 					#We're fully sync'd, so the source is no longer dirty.
 					@sourceView.dirty = false
 
+					@progressElement.setAttribute 'hidden', 'true'
+
+
 			enqueue firstStep
 
 		scrollToSource: ->
+			#Get the first visible source line
+			firstSourceLine = @sourceView.scimoz.firstVisibleLine
 
+			#Find the following source content line
+			lineText = @sourceView.lineText firstSourceLine
+			offset = 0
+			good = true
+			while lineText.charCodeAt(0) isnt 94 #'^'
+				++firstSourceLine
+				lineText = @sourceView.lineText firstSourceLine
+				#We're not showing progress, so just quit if we're running too long.
+				if ++offset > 100
+					good = false
+					break
+
+			#Map that to the appropriate preview line and go there!
+			@scimoz.firstVisibleLine = @sourceToPreview[firstSourceLine] if good
 
 ).call module.exports
