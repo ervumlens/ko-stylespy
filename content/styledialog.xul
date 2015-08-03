@@ -65,10 +65,20 @@ http://mozilla.org/MPL/2.0/.
 					<progressmeter id="previewProgress" hidden="false" mode="determined" value="50"/>
 				</vbox>
 			</tabpanel>
+			<tabpanel>
+				<vbox flex="1">
+					<view type="buffer"
+						  id="swatchView"
+						  flex="1"
+						  pluginPaintHack="true"
+						  />
+				</vbox>
+			</tabpanel>
 		</tabpanels>
 		<tabs onselect="StyleSpyOnTabSelected(this, event);">
 			<tab id="tab_source" label="Source"/>
 			<tab id="tab_preview" label="Preview"/>
+			<tab id="tab_swatch" label="Swatch"/>
 		</tabs>
 	</tabbox>
 </dialog>

@@ -6,22 +6,17 @@ http://mozilla.org/MPL/2.0/.
 
 #The view-related bits are mostly lifted from Komodo's tail.js
 
-TAB_SOURCE = 0
-TAB_PREVIEW = 1
-
-xtk.include 'domutils'
-
-{SourceView, PreviewView} = require 'stylespy/ui/view'
-
+{SourceView, PreviewView, SwatchView} = require 'stylespy/ui/view'
+[TAB_SOURCE, TAB_PREVIEW, TAB_SWATCH] = [0, 1, 2]
+views = [null, null, null]
+activeView = null
 initialized = false
-sourceView = null
-previewView = null
 spylog = ko.logging.getLogger 'style-spy'
 style = require 'stylespy/style'
+xtk.include 'domutils'
 
 @StyleSpyOnBlur = ->
 @StyleSpyOnFocus = ->
-
 
 appendToStyleBuffer = (buffer, source) ->
 	switch source.type
@@ -58,40 +53,33 @@ appendToStyleBuffer = (buffer, source) ->
 
 		buffer = bufferParts.join('\n');
 
-		sourceView = new SourceView document.getElementById('sourceView'), buffer
-		previewView = new PreviewView document.getElementById('previewView')
+		sourceView = views[0] = new SourceView document.getElementById('sourceView'), buffer
+		previewView = views[1] = new PreviewView document.getElementById('previewView')
 		previewView.progressElement = document.getElementById('previewProgress')
 		previewView.sourceView = sourceView
+		swatchView = views[2] = new SwatchView document.getElementById('swatchView')
+		swatchView.sourceView = sourceView
 
 		if navigator.platform.match /^Mac/
 			#Bug 96209, bug 99277 - hack around scintilla display problems on the mac.
-			sourceView.applyMacHack()
-			previewView.applyMacHack()
+			view.applyMacHack() for view in views
 
 		initialized = true
 
-		sourceView.activate()
+		switchView 0
 
 	catch e
 		spylog.error e
 
-@StyleSpyOnTabSelected = (tabs, event)->
+switchView = (viewIndex) ->
+	activeView.passivate() if activeView
+	activeView = views[viewIndex]
+	activeView.activate() if activeView
+
+@StyleSpyOnTabSelected = (tabs, event) ->
 	return unless initialized
-
-	switch tabs.selectedIndex
-		when TAB_PREVIEW
-			sourceView.passivate()
-			previewView.activate()
-		when TAB_SOURCE
-			previewView.passivate()
-			sourceView.activate()
-
+	switchView tabs.selectedIndex
 
 @StyleSpyOnUnload = ->
-	if sourceView
-		sourceView.passivate()
-		sourceView.close()
-	if previewView
-		previewView.passivate()
-		previewView.close()
+	view.close() for view in views when view
 	scintillaOverlayOnUnload()

@@ -45,9 +45,6 @@ http://mozilla.org/MPL/2.0/.
 		constructor: ->
 			super
 			@changeCount = 0
-
-		activate: ->
-			super
 			@registerOnUpdate()
 			@registerOnModified()
 
@@ -317,5 +314,70 @@ http://mozilla.org/MPL/2.0/.
 
 			#Map that to the appropriate preview line and go there!
 			@scimoz.firstVisibleLine = @sourceToPreview[firstSourceLine] if good
+
+	class @SwatchView extends @View
+		constructor: ->
+			super
+			@language = null
+			@scimoz.undoCollection = false
+			@scimoz.readOnly = true
+			@registerOnUpdate()
+			@swatchLines = @createSwatchLines()
+
+		updateText: () ->
+			@scimoz.readOnly = false
+			@language = @view.language = @sourceView.view.language
+			@swatchLines[0] = "Styles for #{@language}"
+			#TODO test scimoz EOL type
+			@view.scimoz.text = @swatchLines.join '\n'
+			@scimoz.readOnly = true
+
+		createSwatchLines: ->
+			lines = ['HEADER 0', '']
+			message = '0123456789ABCDEFabcdef...___===---///\'\'""(){}[]'
+			lines.push "Style  #{i} #{message}" for i in [0 ... 10]
+			lines.push "Style #{i} #{message}" for i in [10 ... 70]
+			lines
+
+		activate: ->
+			super
+			if @language isnt @sourceView.view.language
+				@updateText()
+
+		onUpdate: ->
+			try
+				if @active
+					@styleAllVisible()
+			finally
+				@registerOnUpdate()
+
+		styleLine: (line, style) ->
+			firstPos = @scimoz.positionFromLine line
+			lastPos = @scimoz.positionFromLine line + 1
+			@scimoz.startStyling firstPos, 0
+			@scimoz.setStyling lastPos - firstPos, style
+
+		styleAllVisible: ->
+			#Restyle the visible lines
+			firstLine = @scimoz.firstVisibleLine
+			linesOnScreen = @scimoz.linesOnScreen
+			lastLine = firstLine + linesOnScreen
+
+			headerLineCount = 2
+
+			if firstLine < headerLineCount
+				#Style the header lines separately
+				for line in [0 ... headerLineCount]
+					@styleLine line, STYLE_COMMENT
+				firstLine = headerLineCount
+
+			if lastLine + 6 < @scimoz.lineCount
+				#skip ahead 6 to minimize the flicker problem.
+				lastLine += 6
+
+			#spylog.warn "Styling #{firstLine} to #{lastLine}"
+
+			for line in [firstLine ... lastLine]
+				@styleLine line, line - headerLineCount
 
 ).call module.exports
