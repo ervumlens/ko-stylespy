@@ -154,6 +154,7 @@ http://mozilla.org/MPL/2.0/.
 
 			@extractAllLineStyles view, progress, done, cancel: " No styles will be copied to the clipboard."
 
+		#Launch the progress job asyc'ly so the calling GUI can reset.
 		window.setTimeout op, 1
 
 	@extractAllLineStylesFromCurrentEditorToDialogWithProgress = (window) ->
@@ -169,6 +170,7 @@ http://mozilla.org/MPL/2.0/.
 
 			@extractAllLineStyles view, progress, done
 
+		#Launch the progress job asyc'ly so the calling GUI can reset.
 		window.setTimeout op, 1
 
 	@openNewDialog = (window) ->
