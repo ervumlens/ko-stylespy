@@ -44,9 +44,7 @@ http://mozilla.org/MPL/2.0/.
 	class @SourceView extends @View
 		constructor: ->
 			super
-
-			#"Dirty" in relation to the preview
-			@dirty = true
+			@changeCount = 0
 
 		activate: ->
 			super
@@ -62,7 +60,7 @@ http://mozilla.org/MPL/2.0/.
 				@registerOnUpdate()
 
 		onModified: ->
-			@dirty = true
+			++@changeCount
 
 		styleAllVisible: ->
 			#TODO only style the visible columns
@@ -214,6 +212,7 @@ http://mozilla.org/MPL/2.0/.
 			super
 			@scimoz.undoCollection = false
 			@scimoz.readOnly = true
+			@changeCount = -1
 
 		writeOp: (fn) ->
 			@scimoz.readOnly = false
@@ -222,7 +221,7 @@ http://mozilla.org/MPL/2.0/.
 
 		activate: ->
 			super
-			if @sourceView.dirty or @view.scimoz.length is 0
+			if @changeCount isnt @sourceView.changeCount
 				@recreate()
 			else
 				@scrollToSource()
@@ -270,6 +269,7 @@ http://mozilla.org/MPL/2.0/.
 						sourceLines.splice(line, 1)
 					else
 						sourceLines[line] = lineText[1...]
+						#TODO replace ' \t' with '\t'
 						@previewToSource.unshift line
 
 					@progressElement.setAttribute 'value', (lineCount - line) * inc
@@ -291,8 +291,8 @@ http://mozilla.org/MPL/2.0/.
 
 					@scrollToSource()
 
-					#We're fully sync'd, so the source is no longer dirty.
-					@sourceView.dirty = false
+					#We're fully sync'd, so sync up our change counter
+					@changeCount = @sourceView.changeCount
 
 					@progressElement.setAttribute 'hidden', 'true'
 
