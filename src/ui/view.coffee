@@ -348,8 +348,10 @@ http://mozilla.org/MPL/2.0/.
 			@scimoz.readOnly = false
 			@language = @view.language = @sourceView.view.language
 			@swatchLines[0] = "Styles for #{@language}"
-			#TODO test scimoz EOL type
-			@view.scimoz.text = @swatchLines.join '\n'
+			@view.scimoz.text = switch @view.scimoz.eOLMode
+				when 0 then @swatchLines.join '\r\n'
+				when 1 then @swatchLines.join '\r'
+				when 2 then @swatchLines.join '\n'
 			@scimoz.readOnly = true
 
 		createSwatchLines: ->
