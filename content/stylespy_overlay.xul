@@ -28,8 +28,6 @@
 			 oncommand="ko.extensions.stylespy.openNewDialog(window)"/>
 	<command id="StyleSpy:OpenHelpDialog"
 			 oncommand="ko.extensions.stylespy.openHelpDialog(window)"/>
-	<command id="StyleSpy:OpenSwatchDialog"
-			 oncommand="ko.extensions.stylespy.openSwatchDialog(window)"/>
   </commandset>
 
   <menupopup id="popup_tools">
@@ -49,10 +47,6 @@
 					  observes="StyleSpy:CopyCurrentEditorStyleToClipboard"
 					  class="menu-iconic-wide"/>
 			<menuseparator/>
-			<menuitem id="stylespy_menu_open_swatch_dlg"
-					  label="View Style Swatch"
-					  observes="StyleSpy:OpenSwatchDialog"
-					  class="menu-iconic-wide"/>
 			<menuitem id="stylespy_menu_open_help_dlg"
 					  label="Help"
 					  observes="StyleSpy:OpenHelpDialog"

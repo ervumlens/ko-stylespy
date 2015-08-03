@@ -182,13 +182,4 @@ http://mozilla.org/MPL/2.0/.
 		args = source: content:'chrome://stylespy/content/doc/help.txt', type:'uri'
 		window.openDialog 'chrome://stylespy/content/styledialog.xul', '_blank', winOpts, args
 
-	@openSwatchDialog = (window) ->
-		winOpts = 'centerscreen,chrome,resizable,scrollbars,dialog=no,close';
-		args = sources: []
-		lang = ko?.views?.manager?.currentView?.koDoc?.language
-		if lang
-			args.sources.push content:"=language #{lang}", type: 'buffer'
-		args.sources.push content: 'chrome://stylespy/content/doc/swatch.txt', type: 'uri'
-		window.openDialog 'chrome://stylespy/content/styledialog.xul', '_blank', winOpts, args
-
 ).call module.exports
