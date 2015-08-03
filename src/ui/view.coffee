@@ -65,6 +65,11 @@ http://mozilla.org/MPL/2.0/.
 			linesOnScreen = @scimoz.linesOnScreen
 			lastLine = firstLine + linesOnScreen
 
+			#Lines on screen reflects the size of the editor,
+			#not the number of valid lines displayed. This means
+			#firstVisibleLine + linesOnScreen is not necessarily a valid line.
+			lastLine = @scimoz.lineCount if lastLine > @scimoz.lineCount
+
 			if firstLine >= 3
 				#skip back 3 lines to prevent straggling
 				#style lines from looking funny.
@@ -78,7 +83,7 @@ http://mozilla.org/MPL/2.0/.
 				#skip ahead 3 more to avoid onUpdateUI's flicker problem.
 				lastLine += 3
 
-			#spylog.warn "Styling #{firstLine} to #{lastLine}"
+			#spylog.warn "SourceView: Styling #{firstLine} to #{lastLine}"
 
 			line = firstLine
 			while line < lastLine
@@ -182,9 +187,20 @@ http://mozilla.org/MPL/2.0/.
 		lineText: (line, trimRight = true) ->
 			start = @scimoz.positionFromLine line
 			end = @scimoz.positionFromLine line + 1
+			#spylog.warn "SourceView: lineText (start, end) = (#{start}, #{end})"
 			text = @scimoz.getTextRange(start, end)
 			text = text.trimRight() if trimRight
 			text
+
+		isValidLanguage: (lang) ->
+			{Cc, Ci} = require 'chrome'
+			langRegistry = Cc['@activestate.com/koLanguageRegistryService;1']
+                     .getService(Ci.koILanguageRegistryService)
+
+			countRef = new Object()
+			namesRef = new Object()
+			langRegistry.getLanguageNames namesRef, countRef
+			lang in namesRef.value
 
 		findLanguage: ->
 			hitRx = /^=language\s+(.+)$/
@@ -200,6 +216,9 @@ http://mozilla.org/MPL/2.0/.
 					break
 				else if text.indexOf('^') is 0
 					break
+
+			if not @isValidLanguage hitLang
+				hitLang = @lang
 
 			hitLang
 
@@ -299,12 +318,13 @@ http://mozilla.org/MPL/2.0/.
 		scrollToSource: ->
 			#Get the first visible source line
 			firstSourceLine = @sourceView.scimoz.firstVisibleLine
+			lineCount = @sourceView.scimoz.lineCount
 
 			#Find the following source content line
 			lineText = @sourceView.lineText firstSourceLine
 			offset = 0
 			good = true
-			while lineText.charCodeAt(0) isnt 94 #'^'
+			while firstSourceLine < lineCount and lineText.charCodeAt(0) isnt 94 #'^'
 				++firstSourceLine
 				lineText = @sourceView.lineText firstSourceLine
 				#We're not showing progress, so just quit if we're running too long.
@@ -334,7 +354,7 @@ http://mozilla.org/MPL/2.0/.
 
 		createSwatchLines: ->
 			lines = ['HEADER 0', '']
-			message = '0123456789ABCDEFabcdef...___===---///\'\'""(){}[]'
+			message = '0123456789ABCDEFabcdef...___===\\\\\\---///\'\'""(){}[]'
 			lines.push "Style  #{i} #{message}" for i in [0 ... 10]
 			lines.push "Style #{i} #{message}" for i in [10 ... 70]
 			lines
@@ -375,7 +395,7 @@ http://mozilla.org/MPL/2.0/.
 				#skip ahead 6 to minimize the flicker problem.
 				lastLine += 6
 
-			#spylog.warn "Styling #{firstLine} to #{lastLine}"
+			#spylog.warn "PreviewView: Styling #{firstLine} to #{lastLine}"
 
 			for line in [firstLine ... lastLine]
 				@styleLine line, line - headerLineCount
