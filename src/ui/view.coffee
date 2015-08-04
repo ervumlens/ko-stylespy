@@ -267,11 +267,26 @@ http://mozilla.org/MPL/2.0/.
 				@registerOnUpdate()
 
 		styleAllVisible: ->
-			#map our first line back to the source
 			firstPreviewLine = @scimoz.firstVisibleLine
-			firstSourceLine = @previewToSource[firstPreviewLine]
+			lastPreviewLine = firstPreviewLine + @scimoz.linesOnScreen
 
-			#grab the source's style for this line
+			lineCount = @scimoz.lineCount
+			if lastPreviewLine > lineCount
+				lastPreviewLine = lineCount
+
+			for previewLine in [firstPreviewLine .. lastPreviewLine]
+				sourceLine = @previewToSource[previewLine]
+				#spylog.warn "PreviewView::styleAllVisible : preview line #{previewLine} -> source line #{sourceLine}"
+				continue unless sourceLine
+
+				styleNumbers = @sourceView.findStyleNumbersForLine sourceLine
+				#spylog.warn "PreviewView::styleAllVisible : style numbers: #{styleNumbers.join(',')}"
+				continue unless styleNumbers.length > 0
+
+				firstPos = @scimoz.positionFromLine previewLine
+				@scimoz.startStyling firstPos, 0
+				for i in [0 ... styleNumbers.length]
+					@scimoz.setStyling 1, styleNumbers[i]
 
 		recreate: ->
 			@previewToSource = []
