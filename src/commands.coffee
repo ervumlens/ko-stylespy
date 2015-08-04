@@ -5,7 +5,7 @@ http://mozilla.org/MPL/2.0/.
 ###
 (->
 	@updateEditorViewOnlyCommands = (cmdset) ->
-		if ko?.views?.manager?.currentView?.scimoz?
+		if ko?.views?.manager?.currentView?.getAttribute('type') is 'editor'
 			for child in cmdset.childNodes
 				child.removeAttribute 'disabled'
 		else
@@ -128,7 +128,7 @@ http://mozilla.org/MPL/2.0/.
 		cancel: ->
 			@doCancel = true
 
-	@extractAllLineStyles = (view, progress, done, opts = {}) ->
+	extractAllLineStyles = (view, progress, done, opts = {}) ->
 		return false unless view?.scimoz
 		path = view.koDoc.file?.displayPath
 
@@ -152,7 +152,7 @@ http://mozilla.org/MPL/2.0/.
 				require('sdk/clipboard').set content
 				window.setTimeout (-> window.alert 'Style successfully copied to clipboard.'), 1
 
-			@extractAllLineStyles view, progress, done, cancel: " No styles will be copied to the clipboard."
+			extractAllLineStyles view, progress, done, cancel: " No styles will be copied to the clipboard."
 
 		#Launch the progress job asyc'ly so the calling GUI can reset.
 		window.setTimeout op, 1
@@ -168,7 +168,7 @@ http://mozilla.org/MPL/2.0/.
 				args = source: content:content, type:'buffer'
 				window.openDialog 'chrome://stylespy/content/styledialog.xul', '_blank', winOpts, args
 
-			@extractAllLineStyles view, progress, done
+			extractAllLineStyles view, progress, done
 
 		#Launch the progress job asyc'ly so the calling GUI can reset.
 		window.setTimeout op, 1
