@@ -10,24 +10,28 @@
          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <script src="chrome://stylespy/content/lib/index.js"/>
+  <script type="application/x-javascript">
+	<![CDATA[
+		var stylespy = require('stylespy/commands');
+	]]>
+  </script>
 
   <commandset id="allcommands">
 	<commandset id="cmdset_stylespy_editor_only"
-			oncommandupdate="ko.extensions.stylespy.updateEditorViewOnlyCommands(this)"
+			oncommandupdate="stylespy.updateEditorViewOnlyCommands(this)"
 			commandupdater="true"
 			events="current_view_changed,currentview_is_editor,some_files_open">
 	  <command id="StyleSpy:CopyCurrentEditorStyleToDialog"
-			   oncommand="ko.extensions.stylespy.extractAllLineStylesFromCurrentEditorToDialogWithProgress(window)"
+			   oncommand="stylespy.copyStylesFromCurrentEditorToDialog(window)"
 			   disabled="true"/>
 	  <command id="StyleSpy:CopyCurrentEditorStyleToClipboard"
-			   oncommand="ko.extensions.stylespy.extractAllLineStylesFromCurrentEditorToClipboardWithProgress(window)"
+			   oncommand="stylespy.copyStylesFromCurrentEditorToClipboard(window)"
 			   disabled="true"/>
 	</commandset>
 	<command id="StyleSpy:OpenNewDialog"
-			 oncommand="ko.extensions.stylespy.openNewDialog(window)"/>
+			 oncommand="stylespy.openNewDialog(window)"/>
 	<command id="StyleSpy:OpenHelpDialog"
-			 oncommand="ko.extensions.stylespy.openHelpDialog(window)"/>
+			 oncommand="stylespy.openHelpDialog(window)"/>
   </commandset>
 
   <menupopup id="popup_tools">

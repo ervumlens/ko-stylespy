@@ -142,7 +142,7 @@ http://mozilla.org/MPL/2.0/.
 		cancel = opts.cancel || " No styles will be copied."
 		return progress processor, msg, "Extracting Styles", true, cancel
 
-	@extractAllLineStylesFromCurrentEditorToClipboardWithProgress = (window) ->
+	@copyStylesFromCurrentEditorToClipboard = (window) ->
 		return false unless ko?.views?.manager?.currentView?.scimoz
 
 		op = =>
@@ -157,7 +157,7 @@ http://mozilla.org/MPL/2.0/.
 		#Launch the progress job asyc'ly so the calling GUI can reset.
 		window.setTimeout op, 1
 
-	@extractAllLineStylesFromCurrentEditorToDialogWithProgress = (window) ->
+	@copyStylesFromCurrentEditorToDialog = (window) ->
 		return false unless ko?.views?.manager?.currentView?.scimoz
 
 		op = =>
