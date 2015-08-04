@@ -25,7 +25,7 @@ http://mozilla.org/MPL/2.0/.
 		onUpdate: ->
 
 		registerOnModified: ->
-			@view.addModifiedHandler @onModified, @, 100
+			@view.addModifiedHandler @onModified, @, 100, 0x03 #insert & delete
 
 		unregisterOnModified: ->
 			@view.removeModifiedHandler @onModified
@@ -119,7 +119,7 @@ http://mozilla.org/MPL/2.0/.
 			#Return the number of lines styled/consumed
 
 			styleNumbers = @findStyleNumbersForLine line
-			#spylog.warn "StyleNumbers: #{styleNumbers.join(',')}"
+			#spylog.warn "SourceView::styleContent: StyleNumbers: #{styleNumbers.join(',')}"
 
 			#Bad styles? Only style/consume the content line.
 			if styleNumbers.length is 0
