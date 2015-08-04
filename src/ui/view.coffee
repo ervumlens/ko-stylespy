@@ -118,23 +118,17 @@ http://mozilla.org/MPL/2.0/.
 		styleContent: (line) ->
 			#Return the number of lines styled/consumed
 
-			lineCount = @scimoz.lineCount
-			[style0, style1] = [null, null]
-
-			if line + 2 < lineCount
-				style0 = @lineText line + 1, false
-				style1 = @lineText line + 2, false
+			styleNumbers = @findStyleNumbersForLine line
+			#spylog.warn "StyleNumbers: #{styleNumbers.join(',')}"
 
 			#Bad styles? Only style/consume the content line.
-			if not @areStyleLines style0, style1
+			if styleNumbers.length is 0
 				firstPos = @scimoz.positionFromLine line
 				lastPos = @scimoz.positionFromLine line + 1
 				@scimoz.startStyling firstPos, 0
 				@scimoz.setStyling lastPos - firstPos, STYLE_COMMENT
 				return 1
 
-			styleNumbers = @toStyleNumbers style0, style1
-			#spylog.warn "StyleNumbers: #{styleNumbers.join(',')}"
 			firstPos = @scimoz.positionFromLine(line)
 
 			#Style the content line...
@@ -152,6 +146,17 @@ http://mozilla.org/MPL/2.0/.
 			@scimoz.setStyling lastPos - firstPos, STYLE_STYLES
 
 			3 #content line and two style lines
+
+		findStyleNumbersForLine: (line) ->
+			lineCount = @scimoz.lineCount
+			[style0, style1] = [null, null]
+
+			if line + 2 < lineCount
+				style0 = @lineText line + 1, false
+				style1 = @lineText line + 2, false
+
+			return [] unless @areStyleLines style0, style1
+			@toStyleNumbers style0, style1
 
 		areStyleLines: (style0, style1) ->
 			#Allow style 0 to be empty.
@@ -238,6 +243,8 @@ http://mozilla.org/MPL/2.0/.
 			@scimoz.undoCollection = false
 			@scimoz.readOnly = true
 			@changeCount = -1
+			@previewToSource = []
+			@sourceToPreview = []
 			@registerOnUpdate()
 
 		writeOp: (fn) ->
@@ -254,12 +261,17 @@ http://mozilla.org/MPL/2.0/.
 
 		onUpdate: ->
 			try
-				@styleAllVisible()
+				if @active
+					@styleAllVisible()
 			finally
 				@registerOnUpdate()
 
 		styleAllVisible: ->
+			#map our first line back to the source
+			firstPreviewLine = @scimoz.firstVisibleLine
+			firstSourceLine = @previewToSource[firstPreviewLine]
 
+			#grab the source's style for this line
 
 		recreate: ->
 			@previewToSource = []
