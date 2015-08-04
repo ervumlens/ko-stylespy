@@ -12,7 +12,6 @@ class SwatchView extends View
 		@language = null
 		@scimoz.undoCollection = false
 		@scimoz.readOnly = true
-		@registerOnUpdate()
 		@swatchLines = @createSwatchLines()
 
 	updateText: () ->
