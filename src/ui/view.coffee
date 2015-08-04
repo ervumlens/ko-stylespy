@@ -117,8 +117,13 @@ http://mozilla.org/MPL/2.0/.
 
 		styleContent: (line) ->
 			#Return the number of lines styled/consumed
-			style0 = @lineText line + 1, false
-			style1 = @lineText line + 2, false
+
+			lineCount = @scimoz.lineCount
+			[style0, style1] = [null, null]
+
+			if line + 2 < lineCount
+				style0 = @lineText line + 1, false
+				style1 = @lineText line + 2, false
 
 			#Bad styles? Only style/consume the content line.
 			if not @areStyleLines style0, style1
@@ -150,7 +155,10 @@ http://mozilla.org/MPL/2.0/.
 
 		areStyleLines: (style0, style1) ->
 			#Allow style 0 to be empty.
-			(style0.trim().length is 0 || style0.indexOf(' ') is 0) && (style1.indexOf(' ') is 0)
+			(style0) and
+			(style1) and
+			(style0.trim().length is 0 || style0.indexOf(' ') is 0) and
+			(style1.indexOf(' ') is 0)
 
 		toStyleNumbers: (row0, row1) ->
 			#zip the rows, starting after the marker column
@@ -163,7 +171,7 @@ http://mozilla.org/MPL/2.0/.
 				else
 					style = row1[i]
 
-				if style in [' .', '\t\t']
+				if style in ['.', ' .', '\t\t']
 					style = lastStyle
 				else
 					style = style.trim()
@@ -230,6 +238,7 @@ http://mozilla.org/MPL/2.0/.
 			@scimoz.undoCollection = false
 			@scimoz.readOnly = true
 			@changeCount = -1
+			@registerOnUpdate()
 
 		writeOp: (fn) ->
 			@scimoz.readOnly = false
@@ -242,6 +251,15 @@ http://mozilla.org/MPL/2.0/.
 				@recreate()
 			else
 				@scrollToSource()
+
+		onUpdate: ->
+			try
+				@styleAllVisible()
+			finally
+				@registerOnUpdate()
+
+		styleAllVisible: ->
+
 
 		recreate: ->
 			@previewToSource = []
