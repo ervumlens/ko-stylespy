@@ -368,13 +368,7 @@ http://mozilla.org/MPL/2.0/.
 			super
 			if @language isnt @sourceView.view.language
 				@updateText()
-
-		onUpdate: ->
-			try
-				if @active
-					@styleAllVisible()
-			finally
-				@registerOnUpdate()
+				@styleAllLines()
 
 		styleLine: (line, style) ->
 			firstPos = @scimoz.positionFromLine line
@@ -382,27 +376,13 @@ http://mozilla.org/MPL/2.0/.
 			@scimoz.startStyling firstPos, 0
 			@scimoz.setStyling lastPos - firstPos, style
 
-		styleAllVisible: ->
-			#Restyle the visible lines
-			firstLine = @scimoz.firstVisibleLine
-			linesOnScreen = @scimoz.linesOnScreen
-			lastLine = firstLine + linesOnScreen
+		styleAllLines: ->
+			#Style everything, who cares? NOT ME!
+			@styleLine 0, STYLE_COMMENT
+			@styleLine 1, STYLE_COMMENT
 
-			headerLineCount = 2
-
-			if firstLine < headerLineCount
-				#Style the header lines separately
-				for line in [0 ... headerLineCount]
-					@styleLine line, STYLE_COMMENT
-				firstLine = headerLineCount
-
-			if lastLine + 6 < @scimoz.lineCount
-				#skip ahead 6 to minimize the flicker problem.
-				lastLine += 6
-
-			#spylog.warn "PreviewView: Styling #{firstLine} to #{lastLine}"
-
-			for line in [firstLine ... lastLine]
-				@styleLine line, line - headerLineCount
+			lineCount = @scimoz.lineCount
+			for line in [2 ... lineCount]
+				@styleLine line, line - 2
 
 ).call module.exports
