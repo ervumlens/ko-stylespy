@@ -6,7 +6,10 @@ http://mozilla.org/MPL/2.0/.
 
 #The view-related bits are mostly lifted from Komodo's tail.js
 
-{SourceView, PreviewView, SwatchView} = require 'stylespy/ui/view'
+SourceView = require 'stylespy/ui/source-view'
+PreviewView = require 'stylespy/ui/preview-view'
+SwatchView = require 'stylespy/ui/swatch-view'
+
 [TAB_SOURCE, TAB_PREVIEW, TAB_SWATCH] = [0, 1, 2]
 views = [null, null, null]
 activeView = null
