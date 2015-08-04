@@ -132,7 +132,7 @@ class SourceView extends View
 
 		3 #content line and two style lines
 
-	findStyleNumbersForLine: (line) ->
+	findStyleNumbersForLine: (line, opts) ->
 		lineCount = @scimoz.lineCount
 		[style0, style1] = [null, null]
 
@@ -141,7 +141,7 @@ class SourceView extends View
 			style1 = @lineText line + 2, false
 
 		return [] unless @areStyleLines style0, style1
-		@toStyleNumbers style0, style1
+		@toStyleNumbers style0, style1, opts
 
 	areStyleLines: (style0, style1) ->
 		#Allow style 0 to be empty.
@@ -150,7 +150,7 @@ class SourceView extends View
 		(style0.trim().length is 0 || style0.indexOf(' ') is 0) and
 		(style1.indexOf(' ') is 0)
 
-	toStyleNumbers: (row0, row1) ->
+	toStyleNumbers: (row0, row1, opts) ->
 		#zip the rows, starting after the marker column
 		lastStyle = 0
 		styles = []
@@ -166,7 +166,13 @@ class SourceView extends View
 			else
 				styleText = row1[i]
 
-			if styleText in ['.', ' .', '\t\t']
+			noLeadChar = styleText[0].trim().length is 0
+			inTab = styleText[1] is '\t' and noLeadChar
+			inDot = styleText[1] is '.' and noLeadChar
+
+			continue if opts?.ignoreTabs and inTab
+
+			if inTab or inDot
 				style = lastStyle
 			else
 				styleText = styleText.trim()
