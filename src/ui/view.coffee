@@ -6,7 +6,7 @@ http://mozilla.org/MPL/2.0/.
 spylog = require('ko/logging').getLogger 'style-spy'
 
 class @View
-	@STYLE_UNKNOWN: 0
+	@STYLE_UNKNOWN: 2
 	@STYLE_COMMENT: 2
 	@STYLE_STYLES: 2
 
