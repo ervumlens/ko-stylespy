@@ -273,8 +273,10 @@ http://mozilla.org/MPL/2.0/.
 			inc = 100 / lineCount
 
 			firstStep = =>
-				#TODO the first step needs to check for the $,
-				#then defer to the next-step function.
+				if sourceLines[line] is '$'
+					sourceLines[line] = ''
+					@previewToSource.unshift line
+					--line
 				enqueue nextStep
 
 			nextStep = =>
