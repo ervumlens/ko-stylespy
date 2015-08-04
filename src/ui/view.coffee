@@ -159,13 +159,14 @@ http://mozilla.org/MPL/2.0/.
 			style = 0
 			for i in [1...row1.length]
 				if row0[i]
-					style = (row0[i] + row1[i]).trim()
+					style = row0[i] + row1[i]
 				else
 					style = row1[i]
 
-				if style is '.'
+				if style in [' .', '\t\t']
 					style = lastStyle
 				else
+					style = style.trim()
 					style = Number.parseInt style
 					style = STYLE_UNKNOWN if Number.isNaN style
 					lastStyle = style
