@@ -13,7 +13,6 @@ class PreviewView extends View
 		@scimoz.undoCollection = false
 		@scimoz.readOnly = true
 		@changeCount = -1
-		@lastUpdateFirstLine = -1
 		@previewToSource = []
 		@sourceToPreview = []
 		@registerOnUpdate()
@@ -25,6 +24,7 @@ class PreviewView extends View
 
 	activate: ->
 		super
+		@lastUpdateFirstLine = -1
 		if @changeCount isnt @sourceView.changeCount
 			@recreate()
 		else
@@ -36,7 +36,7 @@ class PreviewView extends View
 			needsUpdate = (@lastUpdateFirstLine isnt @scimoz.firstVisibleLine)
 
 			if @active and needsUpdate
-				spylog.warn "PreviewView::onUpdate"
+				#spylog.warn "PreviewView::onUpdate"
 				@styleAllVisible()
 				@lastUpdateFirstLine = @scimoz.firstVisibleLine
 		finally
@@ -53,14 +53,15 @@ class PreviewView extends View
 
 		for previewLine in [firstPreviewLine .. lastPreviewLine]
 			sourceLine = @previewToSource[previewLine]
-			spylog.warn "PreviewView::styleAllVisible : preview line #{previewLine} -> source line #{sourceLine}"
+			#spylog.warn "PreviewView::styleAllVisible : preview line #{previewLine} -> source line #{sourceLine}"
 			continue unless sourceLine
 
-			styleNumbers = @sourceView.findStyleNumbersForLine sourceLine
-			spylog.warn "PreviewView::styleAllVisible : style numbers: #{styleNumbers.join(',')}"
-			continue unless styleNumbers.length > 0
-
 			firstPos = @scimoz.positionFromLine previewLine
+			lastPos = @scimoz.positionFromLine previewLine + 1
+
+			styleNumbers = @sourceView.findStyleNumbersForLine sourceLine, ignoreTabs: true, length: lastPos - firstPos
+			#spylog.warn "PreviewView::styleAllVisible : style numbers: #{styleNumbers.join(',')}"
+
 			@scimoz.startStyling firstPos, 0
 			for i in [0 ... styleNumbers.length]
 				@scimoz.setStyling 1, styleNumbers[i]
@@ -94,30 +95,28 @@ class PreviewView extends View
 		lineCount = sourceLines.length
 		line = lineCount - 1
 		inc = 100 / lineCount
+		addTrailingLine = (sourceLines[line] is '$')
 
-		firstStep = =>
-			if sourceLines[line] is '$'
-				sourceLines[line] = ''
-				@previewToSource.unshift line
-				--line
-			enqueue nextStep
-
-		nextStep = =>
+		step = =>
 			return unless @active
 			if line >= 0
 				lineText = sourceLines[line]
 				if lineText.charCodeAt(0) isnt 94 #'^'
 					sourceLines.splice(line, 1)
 				else
-					sourceLines[line] = lineText[1...]
-					#TODO replace ' \t' with '\t'
+					#The content builder uses ' \t' in content to simplify
+					#styling single tabs. Replace all ' \t' with '\t' to
+					#turn the user-friendly string into an accurate one.
+					sourceLines[line] = lineText[1...].split(' \t').join('\t')
 					@previewToSource.unshift line
 
 				@progressElement.setAttribute 'value', (lineCount - line) * inc
 				--line
-				enqueue nextStep
+				enqueue step
 			else
 				#Done!
+				sourceLines.push '' if addTrailingLine
+
 				previewText = switch @scimoz.eOLMode
 					when 0 then sourceLines.join '\r\n'
 					when 1 then sourceLines.join '\r'
@@ -131,14 +130,14 @@ class PreviewView extends View
 					@sourceToPreview[@previewToSource[previewLine]] = previewLine
 
 				@scrollToSource()
+				@styleAllVisible()
 
 				#We're fully sync'd, so sync up our change counter
 				@changeCount = @sourceView.changeCount
 
 				@progressElement.setAttribute 'hidden', 'true'
 
-
-		enqueue firstStep
+		enqueue step
 
 	scrollToSource: ->
 		#Get the first visible source line
