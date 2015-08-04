@@ -15,7 +15,7 @@ views = [null, null, null]
 activeView = null
 initialized = false
 spylog = ko.logging.getLogger 'style-spy'
-style = require 'stylespy/style'
+style = require 'stylespy/commands'
 xtk.include 'domutils'
 
 @StyleSpyOnBlur = ->
