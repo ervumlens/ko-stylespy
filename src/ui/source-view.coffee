@@ -99,29 +99,28 @@ class SourceView extends View
 		firstPos = @scimoz.positionFromLine line
 		lastPos = @scimoz.positionFromLine line + 1
 
-		styleNumbers = @findStyleNumbersForLine line
-		spylog.warn "SourceView::styleContent: StyleNumbers: #{styleNumbers.join(',')}"
-
-		#Bad styles? Only style/consume the content line.
-		if styleNumbers.length is 0
+		#We expect every character to have a style except our leading symbol
+		#The funky space-tab content works fine because style tabs default to
+		#the "last style" value.
+		try
+			styleCount = lastPos - firstPos - 1
+			styleNumbers = @findStyleNumbersForLine line, length: styleCount, throwOnBadStyles: true
+		catch
+			#Bad styles, style the content line and bail
+			firstPos = @scimoz.positionFromLine line
+			lastPos = @scimoz.positionFromLine line + 1
 			@scimoz.startStyling firstPos, 0
-			@scimoz.setStyling lastPos - firstPos, View.STYLE_COMMENT
+			@scimoz.setStyling lastPos - firstPos, View.STYLE_UNKNOWN
 			return 1
+
+		#spylog.warn "SourceView::styleContent: StyleNumbers: #{styleNumbers.join(',')}"
 
 		#Style the content line...
 		@scimoz.startStyling firstPos, 0
 		@scimoz.setStyling 1, View.STYLE_COMMENT
 
-
 		for i in [0 ... styleNumbers.length]
 			@scimoz.setStyling 1, styleNumbers[i]
-
-		if styleNumbers.length < (lastPos - firstPos)
-			#Missing some styling. Slap that on now.
-			missing = (lastPos - firstPos) - styleNumbers.length
-			for i in [0 ... missing]
-				@scimoz.setStyling 1, View.STYLE_COMMENT
-
 
 		#Then whip through the style lines.
 		firstPos = @scimoz.positionFromLine(line + 1)
@@ -140,8 +139,21 @@ class SourceView extends View
 			style0 = @lineText line + 1, false
 			style1 = @lineText line + 2, false
 
-		return [] unless @areStyleLines style0, style1
-		@toStyleNumbers style0, style1, opts
+		styleNumbers = if @areStyleLines style0, style1
+			@toStyleNumbers style0, style1, opts
+		else if opts?.throwOnBadStyles
+			throw new Exception "Bad Styles"
+		else
+			[]
+
+		if opts?.length and styleNumbers.length isnt opts.length
+			if styleNumbers.length < opts.length
+				#missing some values, just fill them in with whatever
+				difference = opts.length - styleNumbers.length
+				for i in [0 ... difference]
+					styleNumbers.push View.STYLE_UNKNOWN
+
+		styleNumbers
 
 	areStyleLines: (style0, style1) ->
 		#Allow style 0 to be empty.
@@ -164,7 +176,7 @@ class SourceView extends View
 			if row0[i]
 				styleText = row0[i] + row1[i]
 			else
-				styleText = row1[i]
+				styleText = ' ' + row1[i]
 
 			noLeadChar = styleText[0].trim().length is 0
 			inTab = styleText[1] is '\t' and noLeadChar
