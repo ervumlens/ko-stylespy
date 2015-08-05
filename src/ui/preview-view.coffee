@@ -33,7 +33,8 @@ class PreviewView extends View
 	onUpdate: ->
 		try
 			#Scrolled?
-			needsUpdate = (@lastUpdateFirstLine isnt @scimoz.firstVisibleLine)
+			needsUpdate =
+				(@lastUpdateFirstLine isnt @scimoz.firstVisibleLine)
 
 			if @active and needsUpdate
 				#spylog.warn "PreviewView::onUpdate"
@@ -47,9 +48,23 @@ class PreviewView extends View
 		firstPreviewLine = @scimoz.firstVisibleLine
 		lastPreviewLine = firstPreviewLine + @scimoz.linesOnScreen
 
+		if firstPreviewLine > 3
+			#Style a few off-screen lines to reduce
+			#flicker during scrolling.
+			firstPreviewLine -= 3
+
 		lineCount = @scimoz.lineCount
 		if lastPreviewLine > lineCount
 			lastPreviewLine = lineCount
+		else
+			#Style a few lines at the end, just for kicks!
+			#But seriously: this ensures scimoz doesn't overwrite
+			#our preview style at random.
+			if lastPreviewLine + 3 < lineCount
+				lastPreviewLine += 3
+			if lastPreviewLine + 3 < lineCount
+				lastPreviewLine += 3
+
 
 		for previewLine in [firstPreviewLine .. lastPreviewLine]
 			sourceLine = @previewToSource[previewLine]
