@@ -1,5 +1,7 @@
 ### Welcome to Style Spy! ###
 
+## First Things First ##
+
 #The first character of every line within the Style Spy dialog is significant.
 #Every line must be entirely empty or begin with a special character.
 
@@ -64,6 +66,28 @@
 #Finally, a trailing empty line is represented as a "$". No "$"
 #at the end means the last line of the original content is not empty.
 #Don't worry if it's missing (or if it's there!), just be aware that it's a thing.
+
+## A Little Tab'll Do Ya ##
+
+#There are three tabs available in the Style Spy dialog.
+#Here is a brief description of each.
+
+#The Source tab shows the raw content style data. The content can be modified,
+#and, as mentioned above, content lines are updated with changes to styles.
+
+#The Preview tab shows the content lines from the Source tab as if they
+#were in a normal editor. This preview cannot be edited, but it is kept
+#in sync with the Source tab.
+
+#####
+# Try it yourself: Make some changes to the content and style above,
+# then click the preview tab. Huzzah!
+#####
+
+#The Swatch tab shows the available styles for the language being
+#used in the Source tab. Its job is to make it easy to find the color
+#you want when updating styles.
+
 
 #That's Style Spy in a nutshell!
 
