@@ -20,6 +20,10 @@ xtk.include 'domutils'
 
 @StyleSpyOnBlur = ->
 @StyleSpyOnFocus = ->
+	activeView.styleAllVisible() if activeView
+
+@StyleSpyOnResize = ->
+	activeView.styleAllVisible() if activeView
 
 appendToStyleBuffer = (buffer, source) ->
 	switch source.type

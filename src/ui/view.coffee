@@ -41,4 +41,7 @@ class @View
 	passivate: ->
 		@active = false
 
+	styleAllVisible: ->
+		
+
 module.exports = View

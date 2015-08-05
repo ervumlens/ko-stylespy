@@ -27,6 +27,7 @@ http://mozilla.org/MPL/2.0/.
   onblur="StyleSpyOnBlur();"
   onfocus="StyleSpyOnFocus();"
   onunload="StyleSpyOnUnload();"
+  onresize="StyleSpyOnResize();"
 >
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
