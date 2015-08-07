@@ -4,6 +4,8 @@ If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 ###
 (->
+	spylog = require('ko/logging').getLogger 'style-spy'
+
 	@updateEditorViewOnlyCommands = (cmdset) ->
 		if ko?.views?.manager?.currentView?.getAttribute('type') is 'editor'
 			for child in cmdset.childNodes
@@ -170,7 +172,7 @@ http://mozilla.org/MPL/2.0/.
 			progress = ko.dialogs.progress
 			done = (content) ->
 				winOpts = 'centerscreen,chrome,resizable,scrollbars,dialog=no,close';
-				args = source: content:content, type:'buffer'
+				args = source: content
 				window.openDialog 'chrome://stylespy/content/styledialog.xul', '_blank', winOpts, args
 
 			extractAllLineStyles view, progress, done
@@ -184,7 +186,21 @@ http://mozilla.org/MPL/2.0/.
 
 	@openHelpDialog = (window) ->
 		winOpts = 'centerscreen,chrome,resizable,scrollbars,dialog=no,close';
-		args = source: content:'chrome://stylespy/content/doc/help.txt', type:'uri'
+
+		{ Cc, Ci } = require('chrome');
+		fileService = Cc['@activestate.com/koFileService;1'].createInstance(Ci.koIFileService)
+
+		file = fileService.getFileFromURINoCache 'chrome://stylespy/content/doc/help.txt'
+		file.open 'r'
+		args = {}
+		try
+			args.source = file.readfile()
+		catch e
+			args.source = "An error occurred while loading the help file."
+			spylog.error e
+		finally
+			file.close()
+
 		window.openDialog 'chrome://stylespy/content/styledialog.xul', '_blank', winOpts, args
 
 ).call module.exports

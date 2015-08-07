@@ -25,23 +25,6 @@ xtk.include 'domutils'
 @StyleSpyOnResize = ->
 	activeView.styleAllVisible() if activeView
 
-appendToStyleBuffer = (buffer, source) ->
-	switch source.type
-		when 'view'
-			done = (content) -> buffer.push content
-			progress = ko.dialogs.progress
-			style.extractAllLineStyles source.content, progress, done
-		when 'buffer'
-			buffer.push source.content
-		when 'uri'
-			fileService = Components.classes['@activestate.com/koFileService;1'].createInstance(Components.interfaces.koIFileService)
-			file = fileService.getFileFromURINoCache source.content
-			file.open 'r'
-			try
-				buffer.push file.readfile()
-			finally
-				file.close()
-
 @StyleSpyOnLoad = ->
 	try
 		scintillaOverlayOnLoad()
@@ -49,16 +32,13 @@ appendToStyleBuffer = (buffer, source) ->
 		#The output may be a composite from multiple sites.
 		#Pull everything together in a local buffer before
 		#passing it on to the view.
-		bufferParts = []
+		buffer = ''
 
 		if window.arguments and window.arguments.length > 0
 			opts = window.arguments[0]
-			if opts.sources
-				appendToStyleBuffer(bufferParts, source) for source in opts.sources
-			else if opts.source
-				appendToStyleBuffer bufferParts, opts.source
+			if opts.source
+				buffer = opts.source
 
-		buffer = bufferParts.join('\n');
 
 		sourceView = views[0] = new SourceView document.getElementById('sourceView'), buffer
 		previewView = views[1] = new PreviewView document.getElementById('previewView')
