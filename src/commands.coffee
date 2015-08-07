@@ -45,11 +45,16 @@ http://mozilla.org/MPL/2.0/.
 
 			switch text[i]
 				when '\t'
-					textLine.push ' \t' #note the leading space!
+                    #Note the leading space! This maps to the
+                    #style number that corresponds to the tab itself.
+                    #There's no way to float a style number in the middle
+                    #of a content tab, so this is a reasonable alternative.
+					textLine.push ' \t'
 					tensLine.push '\t'
 					onesLine.push '\t'
-				when '\n', '\r'		  #TODO accommodate Windows
-					textLine.push ' ' #strip trailing EOL
+				when '\r', '\n'
+					#Ignore EOL characters.
+                    #They will be reinserted by the caller.
 				else
 					textLine.push text[i]
 
