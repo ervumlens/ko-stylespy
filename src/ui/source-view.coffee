@@ -3,8 +3,9 @@ This Source Code Form is subject to the terms of the Mozilla Public License, v. 
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 ###
-spylog = require('ko/logging').getLogger 'style-spy'
-View = require 'stylespy/ui/view'
+spylog 	= require('ko/logging').getLogger 'style-spy'
+View 	= require 'stylespy/ui/view'
+EolMode	= require 'stylespy/eol-mode'
 
 class SourceView extends View
 	constructor: ->
@@ -14,6 +15,7 @@ class SourceView extends View
 		@lastUpdateFirstLine = -1
 		@registerOnUpdate()
 		@registerOnModified()
+		@eolMode = EolMode.MODE_DEFAULT
 
 	onUpdate: ->
 		try
@@ -23,7 +25,7 @@ class SourceView extends View
 				(@lastUpdateFirstLine isnt @scimoz.firstVisibleLine)
 			if @active and needsUpdate
 				#spylog.warn "SourceView::onUpdate"
-				@updateLanguage()
+				@updateRootProperties()
 				@styleAllVisible()
 				@lastUpdateChange = @changeCount
 				@lastUpdateFirstLine = @scimoz.firstVisibleLine
@@ -194,10 +196,25 @@ class SourceView extends View
 			styles.push style
 		styles
 
-	updateLanguage: ->
-		#Find our language spec. If the language has changed, update the doc and scimoz.
-		newLang = @findLanguage()
-		if @lang isnt newLang
+	updateRootProperties: ->
+		propRx = /^=(\w+)\s+(.+)$/
+		props = {}
+		lineCount = @scimoz.lineCount
+		#Sanity check
+		lineCount = 100 if lineCount > 100
+
+		hitLang = @lang
+		for line in [0...lineCount]
+			text = @lineText line
+			match = propRx.exec text
+			props[match[1]] = match[2] if match
+			break if text.indexOf('^') is 0
+
+		@updateLanguage(props.language) if props.language
+		@updateEolMode(props.eol) if props.eol
+
+	updateLanguage: (newLang) ->
+		if @lang isnt newLang and @isValidLanguage(newLang)
 			#spylog.warn "Changing language from #{@lang} to #{newLang}"
 			try
 				@view.language = newLang
@@ -205,6 +222,13 @@ class SourceView extends View
 			catch
 				#revert
 				@view.language = @lang
+
+	updateEolMode: (newEol) ->
+		#Update the default EOL
+		if EolMode.isValidDescriptiveString(newEol)
+			@eolMode = EolMode.descriptiveStringToMode newEol
+
+
 
 	lineText: (line, trimRight = true) ->
 		start = @scimoz.positionFromLine line
@@ -223,25 +247,5 @@ class SourceView extends View
 		namesRef = new Object()
 		langRegistry.getLanguageNames namesRef, countRef
 		lang in namesRef.value
-
-	findLanguage: ->
-		hitRx = /^=language\s+(.+)$/
-
-		lineCount = @scimoz.lineCount
-
-		hitLang = @lang
-		for line in [0...lineCount]
-			text = @lineText line
-			match = hitRx.exec text
-			if match
-				hitLang = match[1]
-				break
-			else if text.indexOf('^') is 0
-				break
-
-		if not @isValidLanguage hitLang
-			hitLang = @lang
-
-		hitLang
 
 module.exports = SourceView

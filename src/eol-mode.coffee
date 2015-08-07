@@ -1,10 +1,11 @@
-
 class EolMode
 	@MODE_CRLF: 0
 	@MODE_CR: 1
 	@MODE_LF: 2
 	@MODE_NL: 2
 	@MODE_DEFAULT: @MODE_LF
+
+
 
 	@stringToMode: (str) =>
 		return @MODE_DEFAULT unless str
@@ -14,27 +15,38 @@ class EolMode
 			when '\n' then @MODE_LF
 			else @MODE_DEFAULT
 
-	@modeToString: (mode) =>
+	@modeToStringWithoutDefault: (mode) =>
 		switch mode
 			when @MODE_CRLF then '\r\n'
 			when @MODE_CR then '\r'
-			else '\n'
+			when @MODE_LF then '\n'
 
-	@modeToDescriptiveString: (mode) =>
+	@modeToString: (mode) =>
+		return @modeToStringWithoutDefault(mode) or
+			@modeToStringWithoutDefault(@MODE_DEFAULT)
+
+	@modeToDescriptiveStringWithoutDefault: (mode) =>
 		switch mode
 			when @MODE_CRLF then 'rn'
 			when @MODE_CR then 'r'
-			else 'n'
+			when @MODE_LF then 'n'
+
+	@modeToDescriptiveString: (mode) =>
+		@modeToDescriptiveStringWithoutDefault(mode) or
+			@modeToDescriptiveStringWithoutDefault(@MODE_DEFAULT)
 
 	@descriptiveStringToMode: (str) =>
 		switch str
 			when 'rn' then @MODE_CRLF
 			when 'r' then @MODE_CR
-			else @MODE_LF
+			when 'n' then @MODE_LF
+			else @MODE_DEFAULT
 
 	@stringToDescriptiveString: (str) =>
 		@modeToDescriptiveString @stringToMode(str)
 
+	@isValidDescriptiveString: (str) =>
+		str in ['rn', 'r', 'n']
 
 	constructor: (@mode) ->
 		@string = EolMode.modeToString @mode
