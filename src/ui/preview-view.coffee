@@ -5,6 +5,7 @@ http://mozilla.org/MPL/2.0/.
 ###
 spylog = require('ko/logging').getLogger 'style-spy'
 View = require 'stylespy/ui/view'
+EolMode = require 'stylespy/eol-mode'
 
 class PreviewView extends View
 
@@ -102,10 +103,10 @@ class PreviewView extends View
 
 		#Work directly on the text, not through scimoz functions.
 		#The performance difference is significant.
-		sourceLines = switch sourceScimoz.eOLMode
-			when 0 then sourceScimoz.text.split '\r\n'
-			when 1 then sourceScimoz.text.split '\r'
-			when 2 then sourceScimoz.text.split '\n'
+
+		#Source always uses NL lines, even if
+		#the content represents something else.
+		sourceLines = sourceScimoz.text.split '\n'
 
 		lineCount = sourceLines.length
 		line = lineCount - 1
@@ -122,7 +123,8 @@ class PreviewView extends View
 					#The content builder uses ' \t' in content to simplify
 					#styling single tabs. Replace all ' \t' with '\t' to
 					#turn the user-friendly string into an accurate one.
-					sourceLines[line] = lineText[1...].split(' \t').join('\t')
+					#TODO append the appropriate EOL here.
+					sourceLines[line] = lineText[1...].split(' \t').join('\t') + '\n'
 					@previewToSource.unshift line
 
 				@progressElement.setAttribute 'value', (lineCount - line) * inc
@@ -131,11 +133,7 @@ class PreviewView extends View
 			else
 				#Done!
 				sourceLines.push '' if addTrailingLine
-
-				previewText = switch @scimoz.eOLMode
-					when 0 then sourceLines.join '\r\n'
-					when 1 then sourceLines.join '\r'
-					when 2 then sourceLines.join '\n'
+				previewText = sourceLines.join ''
 
 				@writeOp =>
 					@scimoz.text = previewText
