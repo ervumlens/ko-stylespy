@@ -20,6 +20,22 @@ class EolMode
 			when @MODE_CR then '\r'
 			else '\n'
 
+	@modeToDescriptiveString: (mode) =>
+		switch mode
+			when @MODE_CRLF then 'rn'
+			when @MODE_CR then 'r'
+			else 'n'
+
+	@descriptiveStringToMode: (str) =>
+		switch str
+			when 'rn' then @MODE_CRLF
+			when 'r' then @MODE_CR
+			else @MODE_LF
+
+	@stringToDescriptiveString: (str) =>
+		@modeToDescriptiveString @stringToMode(str)
+
+
 	constructor: (@mode) ->
 		@string = EolMode.modeToString @mode
 

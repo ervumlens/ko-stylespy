@@ -5,6 +5,7 @@ http://mozilla.org/MPL/2.0/.
 ###
 (->
 	spylog = require('ko/logging').getLogger 'style-spy'
+	EolMode = require 'stylespy/eol-mode'
 
 	@updateEditorViewOnlyCommands = (cmdset) ->
 		if ko?.views?.manager?.currentView?.getAttribute('type') is 'editor'
@@ -70,7 +71,9 @@ http://mozilla.org/MPL/2.0/.
 			@desc = 'Starting...'
 			@stage = 'Extracting...'
 
+			eol = EolMode.modeToDescriptiveString @view.scimoz.eOLMode
 			@lines.push "=language #{@view.koDoc.language}"
+			@lines.push "=eol #{eol}"
 			if opts
 				@lines.push("=source #{opts.source}") if 'source' of opts
 
@@ -82,7 +85,8 @@ http://mozilla.org/MPL/2.0/.
 			text = scimoz.getTextRange(start, end)
 			@desc = text
 			styles = scimoz.getStyleRange(start, end)
-			@lines.push "# line #{lineNo + 1}"
+			eol = EolMode.stringToDescriptiveString text
+			@lines.push "=line #{lineNo + 1} #{eol}"
 			@lines = @lines.concat flatten(text, styles)
 
 		extractNextLine: ->
