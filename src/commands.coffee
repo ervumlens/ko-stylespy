@@ -55,28 +55,25 @@ http://mozilla.org/MPL/2.0/.
 					textLine.push ' \t'
 					tensLine.push '\t'
 					onesLine.push '\t'
-				when '\r', '\n'
-					#Ignore EOL characters.
-                    #They will be reinserted by the caller.
 				else
+                    #Anything else (including EOLs) goes back in.
 					textLine.push text[i]
+
+		tensLine.push '\n'
+		onesLine.push '\n'
 
 		[textLine, tensLine, onesLine].map (v) -> v.join('')
 
 	class Extractor
-		constructor: (@view, @finalizer, opts) ->
+		constructor: (@view, @finalizer, opts = {}) ->
 			@currentLine = 0
 			@steps = @view.scimoz.lineCount
 			@lines = []
 			@desc = 'Starting...'
 			@stage = 'Extracting...'
 
-			eol = EolMode.modeToDescriptiveString @view.scimoz.eOLMode
-			@lines.push "=language #{@view.koDoc.language}"
-			@lines.push "=eol #{eol}"
-			if opts
-				@lines.push("=source #{opts.source}") if 'source' of opts
-
+			@lines.push "=language #{@view.koDoc.language}\n"
+			@lines.push "=source #{opts.source}\n" if 'source' of opts
 
 		extractLine: (lineNo) ->
 			scimoz = @view.scimoz
@@ -85,8 +82,7 @@ http://mozilla.org/MPL/2.0/.
 			text = scimoz.getTextRange(start, end)
 			@desc = text
 			styles = scimoz.getStyleRange(start, end)
-			eol = EolMode.stringToDescriptiveString text
-			@lines.push "=line #{lineNo + 1} #{eol}"
+			@lines.push "#line #{lineNo + 1}\n"
 			@lines = @lines.concat flatten(text, styles)
 
 		extractNextLine: ->
@@ -100,7 +96,14 @@ http://mozilla.org/MPL/2.0/.
 			#nothing to do
 
 		finalize: ->
-			@finalizer @lines.join('\n')
+			#The lines typically contain EOL chars already.
+			#It's possible that the last line ends on something else.
+			#Check that now and accommodate it.
+			lastLine = @lines[@lines.length - 1]
+			if lastLine isnt '$' and not EolMode.endsInEol lastLine
+				@lines[@lines.length - 1] += '\n'
+
+			@finalizer @lines.join('')
 
 
 	#lifted from Komodo test code

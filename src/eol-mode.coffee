@@ -5,7 +5,12 @@ class EolMode
 	@MODE_NL: 2
 	@MODE_DEFAULT: @MODE_LF
 
-
+	@endsInEol: (str) =>
+		return false unless str
+		return true if str[-2...] is '\r\n'
+		switch str[-1...]
+			when '\r', '\n' then true
+			else false
 
 	@stringToMode: (str) =>
 		return @MODE_DEFAULT unless str

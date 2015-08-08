@@ -5,7 +5,6 @@ http://mozilla.org/MPL/2.0/.
 ###
 spylog 	= require('ko/logging').getLogger 'style-spy'
 View 	= require 'stylespy/ui/view'
-EolMode	= require 'stylespy/eol-mode'
 
 class SourceView extends View
 	constructor: ->
@@ -15,7 +14,6 @@ class SourceView extends View
 		@lastUpdateFirstLine = -1
 		@registerOnUpdate()
 		@registerOnModified()
-		@eolMode = EolMode.MODE_DEFAULT
 
 	onUpdate: ->
 		try
@@ -211,7 +209,6 @@ class SourceView extends View
 			break if text.indexOf('^') is 0
 
 		@updateLanguage(props.language) if props.language
-		@updateEolMode(props.eol) if props.eol
 
 	updateLanguage: (newLang) ->
 		if @lang isnt newLang and @isValidLanguage(newLang)
@@ -222,13 +219,6 @@ class SourceView extends View
 			catch
 				#revert
 				@view.language = @lang
-
-	updateEolMode: (newEol) ->
-		#Update the default EOL
-		if EolMode.isValidDescriptiveString(newEol)
-			@eolMode = EolMode.descriptiveStringToMode newEol
-
-
 
 	lineText: (line, trimRight = true) ->
 		start = @scimoz.positionFromLine line

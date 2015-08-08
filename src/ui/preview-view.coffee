@@ -5,7 +5,6 @@ http://mozilla.org/MPL/2.0/.
 ###
 spylog = require('ko/logging').getLogger 'style-spy'
 View = require 'stylespy/ui/view'
-EolMode = require 'stylespy/eol-mode'
 
 class PreviewView extends View
 
@@ -101,30 +100,33 @@ class PreviewView extends View
 		enqueue = (step) ->
 			Services.tm.currentThread.dispatch step, Ci.nsIThread.DISPATCH_NORMAL
 
-		#Work directly on the text, not through scimoz functions.
-		#The performance difference is significant.
-
-		#Source always uses NL lines, even if
-		#the content represents something else.
-		sourceLines = sourceScimoz.text.split '\n'
-
-		lineCount = sourceLines.length
+		#Extract lines from the source view one at a time.
+		#Operate on them, rejoin them, then load them in the preview.
+		sourceLines = []
+		lineCount = sourceScimoz.lineCount
 		line = lineCount - 1
 		inc = 100 / lineCount
-		addTrailingLine = (sourceLines[line] is '$')
+
+		#Assume our $ friend is on his own line
+		#and not floating on a comment, or whatever.
+		lastCharCode = sourceScimoz.getCharAt(sourceScimoz.length - 1)
+		trimTrailingLine = (lastCharCode isnt 36) #'$'
 
 		step = =>
 			return unless @active
 			if line >= 0
-				lineText = sourceLines[line]
-				if lineText.charCodeAt(0) isnt 94 #'^'
-					sourceLines.splice(line, 1)
-				else
+				#Copy the text from Scimoz first. This lets us avoid
+				#the hassle of splitting on each kind of EOL and
+				#rejoining on whatever we split. This could all be done
+				#manually, for performance purposes.
+				startPos = sourceScimoz.positionFromLine line
+				endPos = sourceScimoz.positionFromLine line + 1
+				lineText = sourceScimoz.getTextRange startPos, endPos
+				if lineText.charCodeAt(0) is 94 #'^'
 					#The content builder uses ' \t' in content to simplify
 					#styling single tabs. Replace all ' \t' with '\t' to
 					#turn the user-friendly string into an accurate one.
-					#TODO append the appropriate EOL here.
-					sourceLines[line] = lineText[1...].split(' \t').join('\t') + '\n'
+					sourceLines[line] = lineText[1...].split(' \t').join('\t')
 					@previewToSource.unshift line
 
 				@progressElement.setAttribute 'value', (lineCount - line) * inc
@@ -132,7 +134,12 @@ class PreviewView extends View
 				enqueue step
 			else
 				#Done!
-				sourceLines.push '' if addTrailingLine
+				if trimTrailingLine
+					lastLine = sourceLines[sourceLines.length - 1]
+					lastLine = lastLine.replace '\r', ''
+					lastLine = lastLine.replace '\n', ''
+					sourceLines[sourceLines.length - 1] = lastLine
+
 				previewText = sourceLines.join ''
 
 				@writeOp =>
