@@ -15,7 +15,7 @@ http://mozilla.org/MPL/2.0/.
 			for child in cmdset.childNodes
 				child.setAttribute 'disabled', 'true'
 
-	flatten = (text, styles) ->
+	flatten = (text, styles, isLastLine) ->
 		#turn a list of numbers into tall text
 		#e.g. if text is "ABC = 123" and styles is [4,4,4,0,10,0,2,2,2],
 		#then return:
@@ -62,6 +62,9 @@ http://mozilla.org/MPL/2.0/.
 		tensLine.push '\n'
 		onesLine.push '\n'
 
+		if isLastLine and not EolMode.endsInEol textLine[textLine.length - 1]
+			textLine.push '\n'
+
 		[textLine, tensLine, onesLine].map (v) -> v.join('')
 
 	class Extractor
@@ -85,7 +88,7 @@ http://mozilla.org/MPL/2.0/.
 			@desc = text
 			styles = scimoz.getStyleRange(start, end)
 			@lines.push "#line #{lineNo + 1}\n"
-			@lines = @lines.concat flatten(text, styles)
+			@lines = @lines.concat flatten(text, styles, @currentLine is @steps)
 
 		extractNextLine: ->
 			@extractLine @currentLine++
@@ -98,13 +101,6 @@ http://mozilla.org/MPL/2.0/.
 			#nothing to do
 
 		finalize: ->
-			#The lines typically contain EOL chars already.
-			#It's possible that the last line ends on something else.
-			#Check that now and accommodate it.
-			lastLine = @lines[@lines.length - 1]
-			if lastLine isnt '$' and not EolMode.endsInEol lastLine
-				@lines[@lines.length - 1] += '\n'
-
 			@finalizer @lines.join('')
 
 
