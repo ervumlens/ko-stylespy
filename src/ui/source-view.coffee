@@ -5,6 +5,7 @@ http://mozilla.org/MPL/2.0/.
 ###
 spylog 	= require('ko/logging').getLogger 'style-spy'
 View 	= require 'stylespy/ui/view'
+EolMode = require 'stylespy/eol-mode'
 
 class SourceView extends View
 	constructor: ->
@@ -201,16 +202,18 @@ class SourceView extends View
 		#Sanity check
 		lineCount = 100 if lineCount > 100
 
-		hitLang = @lang
 		for line in [0...lineCount]
 			text = @lineText line
 			match = propRx.exec text
 			props[match[1]] = match[2] if match
 			break if text.indexOf('^') is 0
 
-		@updateLanguage(props.language) if props.language
+		@updateLanguage props.language
+		@updateEolMode props.eol
 
 	updateLanguage: (newLang) ->
+		#Keep the old language going even if it's removed from the doc.
+		return unless newLang
 		if @lang isnt newLang and @isValidLanguage(newLang)
 			#spylog.warn "Changing language from #{@lang} to #{newLang}"
 			try
@@ -219,6 +222,12 @@ class SourceView extends View
 			catch
 				#revert
 				@view.language = @lang
+
+	updateEolMode: (newEolDesc) ->
+		return unless newEolDesc
+		if EolMode.isValidDescriptiveString newEolDesc
+			@scimoz.eOLMode = EolMode.descriptiveStringToMode newEolDesc
+
 
 	lineText: (line, trimRight = true) ->
 		start = @scimoz.positionFromLine line

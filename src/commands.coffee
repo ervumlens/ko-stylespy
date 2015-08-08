@@ -72,7 +72,9 @@ http://mozilla.org/MPL/2.0/.
 			@desc = 'Starting...'
 			@stage = 'Extracting...'
 
+			eol = EolMode.modeToDescriptiveString @view.scimoz.eOLMode
 			@lines.push "=language #{@view.koDoc.language}\n"
+			@lines.push "=eol #{eol}\n"
 			@lines.push "=source #{opts.source}\n" if 'source' of opts
 
 		extractLine: (lineNo) ->
