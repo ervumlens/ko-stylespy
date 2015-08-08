@@ -29,9 +29,6 @@ xtk.include 'domutils'
 	try
 		scintillaOverlayOnLoad()
 
-		#The output may be a composite from multiple sites.
-		#Pull everything together in a local buffer before
-		#passing it on to the view.
 		buffer = ''
 
 		if window.arguments and window.arguments.length > 0
