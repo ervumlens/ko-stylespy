@@ -3,8 +3,10 @@ This Source Code Form is subject to the terms of the Mozilla Public License, v. 
 If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 ###
-spylog = require('ko/logging').getLogger 'style-spy'
-View = require 'stylespy/ui/view'
+spylog	= require('ko/logging').getLogger 'style-spy'
+View	= require 'stylespy/ui/view'
+Stylist	= require 'stylespy/ui/stylist'
+LineClass = require 'stylespy/line-classification'
 
 class PreviewView extends View
 
@@ -15,7 +17,14 @@ class PreviewView extends View
 		@changeCount = -1
 		@previewToSource = []
 		@sourceToPreview = []
+		@stylist = new Stylist @, ignoreTabs: true
 		@registerOnUpdate()
+
+	localLineToSourceLine: (line) ->
+		@previewToSource[line]
+
+	classifyLine: ->
+		LineClass.CONTENT
 
 	writeOp: (fn) ->
 		@scimoz.readOnly = false
@@ -24,6 +33,7 @@ class PreviewView extends View
 
 	activate: ->
 		super
+		@stylist.activate()
 		@lastUpdateFirstLine = -1
 		if @changeCount isnt @sourceView.changeCount
 			@recreate()
@@ -45,41 +55,7 @@ class PreviewView extends View
 		false
 
 	styleAllVisible: ->
-		firstPreviewLine = @scimoz.firstVisibleLine
-		lastPreviewLine = firstPreviewLine + @scimoz.linesOnScreen
-
-		if firstPreviewLine > 3
-			#Style a few off-screen lines to reduce
-			#flicker during scrolling.
-			firstPreviewLine -= 3
-
-		lineCount = @scimoz.lineCount
-		if lastPreviewLine > lineCount
-			lastPreviewLine = lineCount
-		else
-			#Style a few lines at the end, just for kicks!
-			#But seriously: this ensures scimoz doesn't overwrite
-			#our preview style at random.
-			if lastPreviewLine + 3 < lineCount
-				lastPreviewLine += 3
-			if lastPreviewLine + 3 < lineCount
-				lastPreviewLine += 3
-
-
-		for previewLine in [firstPreviewLine .. lastPreviewLine]
-			sourceLine = @previewToSource[previewLine]
-			#spylog.warn "PreviewView::styleAllVisible : preview line #{previewLine} -> source line #{sourceLine}"
-			continue unless sourceLine
-
-			firstPos = @scimoz.positionFromLine previewLine
-			lastPos = @scimoz.positionFromLine previewLine + 1
-
-			styleNumbers = @sourceView.findStyleNumbersForLine sourceLine, ignoreTabs: true, length: lastPos - firstPos
-			#spylog.warn "PreviewView::styleAllVisible : style numbers: #{styleNumbers.join(',')}"
-
-			@scimoz.startStyling firstPos, 0
-			for i in [0 ... styleNumbers.length]
-				@scimoz.setStyling 1, styleNumbers[i]
+		@stylist.styleAllVisible()
 
 	recreate: ->
 		@previewToSource = []
