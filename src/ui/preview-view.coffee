@@ -31,6 +31,10 @@ class PreviewView extends View
 			ignoreTabs: true
 			throwOnBadStyles: false
 
+	findIndicatorNumbersForLine: (line, length) ->
+		@sourceView.findIndicatorNumbersForLine line, length,
+			ignoreTabs: true
+
 	writeOp: (fn) ->
 		@scimoz.readOnly = false
 		fn()

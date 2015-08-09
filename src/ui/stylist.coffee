@@ -34,7 +34,9 @@ class Stylist
 		else if remaining < 0
 			lastLine = lineCount
 
-		spylog.warn "Styling from lines #{firstLine} to #{lastLine} (of #{lineCount} lines)."
+		#spylog.warn "Styling from lines #{firstLine} to #{lastLine} (of #{lineCount} lines)."
+
+		@clearAllDecorations firstLine, lastLine
 
 		for line in [firstLine ... lastLine]
 			@styleLine line
@@ -46,7 +48,9 @@ class Stylist
 			when LineType.CONTENT
 				try
 					@styleContent line
-				catch
+					@decorateContent line
+				catch e
+					spylog.warn e
 					#Can't style it normally, so drop back to "unknown" styling
 					@applyUniformStyle line, @defaultStyle
 			else
@@ -54,10 +58,8 @@ class Stylist
 
 	styleContent: (line) ->
 		sourceLine = @view.localLineToSourceLine line
-		spylog.warn "Stylist::styleContent : target line #{line} -> source line #{sourceLine}"
+		#spylog.warn "Stylist::styleContent : target line #{line} -> source line #{sourceLine}"
 		return unless sourceLine
-
-
 
 		firstPos = @stylingOffset + @scimoz.positionFromLine line
 		lastPos = @scimoz.positionFromLine line + 1
@@ -68,14 +70,47 @@ class Stylist
 
 		styleNumbers = @view.findStyleNumbersForLine sourceLine, lastPos - firstPos
 
-		spylog.warn "Stylist::styleContent : style numbers: #{styleNumbers.join(',')}"
+		#spylog.warn "Stylist::styleContent : style numbers: #{styleNumbers.join(',')}"
 
 		@scimoz.startStyling firstPos, 0
 		for i in [0 ... styleNumbers.length]
 			@scimoz.setStyling 1, styleNumbers[i]
 
+	clearAllDecorations: (firstLine, lastLine) ->
+		firstPos = @scimoz.positionFromLine firstLine
+		lastPos = @scimoz.positionFromLine lastLine + 1
+		length = lastPos - firstPos
+		for i in [0 ... 64]
+			@scimoz.indicatorCurrent = i
+			@scimoz.indicatorClearRange firstPos, length
+
+	decorateContent: (line) ->
+		sourceLine = @view.localLineToSourceLine line
+		spylog.warn "Stylist::decorateContent : target line #{line} -> source line #{sourceLine}"
+		return unless sourceLine
+
+		firstPos = @stylingOffset + @scimoz.positionFromLine line
+		lastPos = @scimoz.positionFromLine line + 1
+		length = lastPos - firstPos
+
+		indNumbers = @view.findIndicatorNumbersForLine sourceLine, length
+
+		spylog.warn "Stylist::decorateContent : indicator numbers: #{indNumbers.join('|')}"
+
+		#indNumbers is an array of arrays
+		for indicators in indNumbers
+			#indicators are measured by caret positions,
+			#rather than character positions (okay, this is a guess).
+			#So to decorate character n, set the indicator at n - 1.
+			pos = firstPos - 1
+			for indicator in indicators
+				++pos
+				continue if indicator < 0
+				@scimoz.indicatorCurrent = indicator
+				@scimoz.indicatorFillRange pos, 1
+
 	applyUniformStyle: (line, style) ->
-		spylog.warn "Stylist::applyUniformStyle : line #{line}, style #{style}"
+		#spylog.warn "Stylist::applyUniformStyle : line #{line}, style #{style}"
 
 		firstPos = @scimoz.positionFromLine line
 		lastPos = @scimoz.positionFromLine line + 1

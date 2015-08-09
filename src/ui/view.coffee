@@ -15,7 +15,6 @@ class @View
 		@scimoz = @view.scimoz
 		@active = false
 
-
 	applyMacHack: ->
 		setTimeout (=> @view.scintilla.setAttribute 'flex', '2'), 1
 
@@ -32,6 +31,9 @@ class @View
 
 	onModified: ->
 
+	focus: ->
+		@view.setFocus()
+		
 	close: ->
 		@view.close()
 

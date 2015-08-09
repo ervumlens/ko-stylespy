@@ -49,13 +49,12 @@ class SourceView extends View
 
 	classifyLine: (line) ->
 		start = @scimoz.positionFromLine line
-		end = start + 1
-		text = @scimoz.getTextRange(start, end)
-		switch text
-			when '#' then LineType.COMMENT
-			when '=' then LineType.PROPERTY
-			when '^' then LineType.CONTENT
-			when ' ' then LineType.STYLE
+		switch @scimoz.getCharAt start
+			when 35 then LineType.COMMENT	# "#"
+			when 61 then LineType.PROPERTY	# "="
+			when 94 then LineType.CONTENT	# "^"
+			when 32 then LineType.STYLE		# " "
+			when 42 then LineType.INDICATOR	# "*"
 			else LineType.UNKNOWN
 
 	findStyleNumbersForLine: (line, length, opts) ->
@@ -70,7 +69,7 @@ class SourceView extends View
 			style1 = @lineText line + 2, false
 
 		styleNumbers = if @areStyleLines style0, style1
-			@toStyleNumbers style0, style1, opts
+			@zipColumnNumbers style0, style1, opts
 		else if opts?.throwOnBadStyles
 			throw new Exception "Bad styles for source line #{line}"
 		else
@@ -91,37 +90,77 @@ class SourceView extends View
 		(style0.trim().length is 0 || style0.indexOf(' ') is 0) and
 		(style1.indexOf(' ') is 0)
 
-	toStyleNumbers: (row0, row1, opts) ->
+	findIndicatorNumbersForLine: (line, length, opts) ->
+		if not opts
+			opts = ignoreTabs: false
+
+		NO_INDICATOR = -1
+		opts.defaultValue = NO_INDICATOR
+
+		lineCount = @scimoz.lineCount
+		allIndicators = []
+
+		line += 2 #skip the style lines
+		#Grab pairs of lines as long as they're indicator lines
+		while line + 2 < lineCount
+			ind0 = @lineText line += 1, false
+			ind1 = @lineText line += 1, false
+
+			indicators = null
+			if @areIndicatorLines ind0, ind1
+				indicators = @zipColumnNumbers ind0, ind1, opts
+			else
+				break
+
+			if indicators.length < length
+				#missing some values, just fill them in with whatever
+				difference = length - indicators.length
+				indicators.push(NO_INDICATOR) for i in [0 ... difference]
+			allIndicators.push indicators
+		allIndicators
+
+	areIndicatorLines: (ind0, ind1) ->
+		(ind0) and
+		(ind1) and
+		(ind0.indexOf('*') is 0) and
+		(ind1.indexOf('*') is 0)
+
+	zipColumnNumbers: (row0, row1, opts) ->
 		#zip the rows, starting after the marker column
-		lastStyle = 0
-		styles = []
-		style = 0
-		styleText = ''
+		lastNumber = 0
+		numbers = []
+		currentNumber = 0
+		numberText = ''
+		defaultValue = opts?.defaultValue or 0
+		ignoreTabs = opts?.ignoreTabs or false
+
 		#Calling trim() is too aggressive.
 		#We just need to scrap EOL characters.
 		row1 = row1.replace('\n', '')
 		row1 = row1.replace('\r', '')
 		for i in [1...row1.length]
 			if row0[i]
-				styleText = row0[i] + row1[i]
+				numberText = row0[i] + row1[i]
 			else
-				styleText = ' ' + row1[i]
+				numberText = ' ' + row1[i]
 
-			noLeadChar = styleText[0].trim().length is 0
-			inTab = styleText[1] is '\t' and noLeadChar
-			inDot = styleText[1] is '.' and noLeadChar
+			noLeadChar = numberText[0].trim().length is 0
+			inTab = numberText[1] is '\t' and noLeadChar
+			inDot = numberText[1] is '.' and noLeadChar
 
-			continue if opts?.ignoreTabs and inTab
+			continue if ignoreTabs and inTab
 
 			if inTab or inDot
-				style = lastStyle
+				currentNumber = lastNumber
 			else
-				styleText = styleText.trim()
-				style = Number.parseInt styleText
-				style = View.STYLE_UNKNOWN if Number.isNaN style
-				lastStyle = style
-			styles.push style
-		styles
+				numberText = numberText.trim()
+				currentNumber = Number.parseInt numberText
+				if Number.isNaN currentNumber
+					currentNumber = defaultValue
+				else
+					lastNumber = currentNumber
+			numbers.push currentNumber
+		numbers
 
 	updateRootProperties: ->
 		propRx = /^=(\w+)\s+(.+)$/
