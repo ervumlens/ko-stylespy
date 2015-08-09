@@ -1,0 +1,67 @@
+### Welcome Back to Style Spy! ###
+
+# This text covers some less common, more advanced topics
+# compared to the basic help.
+
+## New End-of-Line Type ##
+
+# By default, lines added to the source view are line feeds ("\n").
+# New line endings can be changed by modifying the "eol" property.
+
+=eol n
+
+# The following values are accepted:
+# "n"  - line feed / LF or new-line / NL ("\n")
+# "r"  - carriage return / CR ("\r")
+# "rn" - carriage return - line feed / CRLF ("\r\n")
+
+#####
+# Try it yourself: Change the eol property above, then add some
+# new lines in the source view. To see the difference the setting makes,
+# you'll need to show EOL markers (use the right-click menu to do this).
+# Changing line endings can have some unintended consequences, so as a rule,
+# it's best to stick to one type of ending for all lines.
+#####
+
+## Indicators ##
+
+# Komodo marks errors in code using indicators (also called
+# decorators). Style Spy supports adding indicators to content lines
+# in a fashion similar to setting styles. Unlike styles, though,
+# a line may have more than one indicator (or none!) applied to it at a time.
+# Here is a basic example. Take a look at it here and in the preview.
+
+=language JavaScript
+
+^var foobar = 123;
+     1      1    1
+ 5..01.....0004..00
+*    1
+*    5.....   ...
+*1            2
+*9.........   7..
+
+# Each indicator line begins with a "*", and they always appear in
+# pairs regardless of the indicators they represent. In the example
+# above, there are two pairs of indicator lines.
+
+# A pair of indicator lines can represent more than one indicator.
+# Unlike style lines, indicator lines don't have (or need) default values.
+# "No indicator here" is represented by a space (" ").
+# Note that "no indicator here" in one pair of indicator lines does not
+# prevent an indicator from being applied by another pair of lines.
+
+# As in style lines, the "." represents "use the previous value."
+
+# Since indicators may be represented in different lines, it's possible
+# to have indicators overlap. In the example above, indicator 19
+# overlaps with indicator 15, and indicator 15 overlaps with indicator 27.
+
+# The order in which the indicators are given is not important,
+# but some indicators will be rendered above others based on internal settings.
+
+#####
+# Try it yourself: Change the indicators above. Try adding new indicator
+# lines, and removing them altogether. Use the swatch to help you find
+# interesting indicator types.
+#####

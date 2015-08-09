@@ -30,8 +30,10 @@
 	</commandset>
 	<command id="StyleSpy:OpenNewDialog"
 			 oncommand="stylespy.openNewDialog(window)"/>
-	<command id="StyleSpy:OpenHelpDialog"
-			 oncommand="stylespy.openHelpDialog(window)"/>
+	<command id="StyleSpy:OpenBasicHelpDialog"
+			 oncommand="stylespy.openBasicHelpDialog(window)"/>
+	<command id="StyleSpy:OpenAdvancedHelpDialog"
+			 oncommand="stylespy.openAdvancedHelpDialog(window)"/>
   </commandset>
 
   <menupopup id="popup_tools">
@@ -51,9 +53,13 @@
 					  observes="StyleSpy:CopyCurrentEditorStyleToClipboard"
 					  class="menu-iconic-wide"/>
 			<menuseparator/>
-			<menuitem id="stylespy_menu_open_help_dlg"
-					  label="Help"
-					  observes="StyleSpy:OpenHelpDialog"
+			<menuitem id="stylespy_menu_open_basic_help_dlg"
+					  label="Help &#8212; Basic"
+					  observes="StyleSpy:OpenBasicHelpDialog"
+					  class="menu-iconic-wide"/>
+			<menuitem id="stylespy_menu_open_advanced_help_dlg"
+					  label="Help &#8212; Advanced"
+					  observes="StyleSpy:OpenAdvancedHelpDialog"
 					  class="menu-iconic-wide"/>
 		</menupopup>
 	</menu>

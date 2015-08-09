@@ -189,23 +189,29 @@ http://mozilla.org/MPL/2.0/.
 		winOpts = 'centerscreen,chrome,resizable,scrollbars,dialog=no,close';
 		window.openDialog 'chrome://stylespy/content/styledialog.xul', '_blank', winOpts
 
-	@openHelpDialog = (window) ->
+	copyUriContentsToDialog = (window, uri) ->
 		winOpts = 'centerscreen,chrome,resizable,scrollbars,dialog=no,close';
 
 		{ Cc, Ci } = require('chrome');
 		fileService = Cc['@activestate.com/koFileService;1'].createInstance(Ci.koIFileService)
 
-		file = fileService.getFileFromURINoCache 'chrome://stylespy/content/doc/help.txt'
+		file = fileService.getFileFromURINoCache uri
 		file.open 'r'
 		args = {}
 		try
 			args.source = file.readfile()
 		catch e
-			args.source = "An error occurred while loading the help file."
+			args.source = "An error occurred while loading #{uri}."
 			spylog.error e
 		finally
 			file.close()
 
 		window.openDialog 'chrome://stylespy/content/styledialog.xul', '_blank', winOpts, args
+
+	@openBasicHelpDialog = (window) ->
+		copyUriContentsToDialog window, 'chrome://stylespy/content/doc/help-basic.txt'
+
+	@openAdvancedHelpDialog = (window) ->
+		copyUriContentsToDialog window, 'chrome://stylespy/content/doc/help-advanced.txt'
 
 ).call module.exports
