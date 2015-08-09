@@ -10,8 +10,8 @@ LineClass = require 'stylespy/line-classification'
 
 class PreviewView extends View
 
-	constructor: ->
-		super
+	constructor: (view, @sourceView) ->
+		super view
 		@scimoz.undoCollection = false
 		@scimoz.readOnly = true
 		@changeCount = -1
@@ -26,6 +26,11 @@ class PreviewView extends View
 	classifyLine: ->
 		LineClass.CONTENT
 
+	findStyleNumbersForLine: (line, length) ->
+		@sourceView.findStyleNumbersForLine line, length,
+			ignoreTabs: true
+			throwOnBadStyles: false
+
 	writeOp: (fn) ->
 		@scimoz.readOnly = false
 		fn()
@@ -33,7 +38,6 @@ class PreviewView extends View
 
 	activate: ->
 		super
-		@stylist.activate()
 		@lastUpdateFirstLine = -1
 		if @changeCount isnt @sourceView.changeCount
 			@recreate()

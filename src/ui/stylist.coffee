@@ -8,20 +8,16 @@ LineClass = require 'stylespy/line-classification'
 spylog 	= require('ko/logging').getLogger 'style-spy'
 
 class Stylist
-	constructor: (@owner, @opts = {}) ->
+	constructor: (@view, @opts = {}) ->
 		@opts.ignoreTabs ||= false
 		@opts.throwOnBadStyles ||= false
 		@opts.defaultStyle ||= 2
-
-	activate: ->
-		@sourceView = @owner.sourceView or @owner
-		@targetView = @owner
-		@targetScimoz = @targetView.scimoz
+		@scimoz = @view.scimoz
 
 	styleAllVisible: ->
-		firstLine = @targetScimoz.firstVisibleLine
-		lastLine = firstLine + @targetScimoz.linesOnScreen
-		lineCount = @targetScimoz.lineCount
+		firstLine = @scimoz.firstVisibleLine
+		lastLine = firstLine + @scimoz.linesOnScreen
+		lineCount = @scimoz.lineCount
 
 		if firstLine > 3
 			#Style a few off-screen lines to reduce
@@ -43,7 +39,7 @@ class Stylist
 			@styleLine line
 
 	styleLine: (line) ->
-		classification = @owner.classifyLine line
+		classification = @view.classifyLine line
 
 		switch classification
 			when LineClass.CONTENT
@@ -52,28 +48,25 @@ class Stylist
 				@styleUniform line, @opts.defaultStyle
 
 	styleContent: (line) ->
-		sourceLine = @owner.localLineToSourceLine line
+		sourceLine = @view.localLineToSourceLine line
 		#spylog.warn "Stylist::styleContent : target line #{line} -> source line #{sourceLine}"
 		return unless sourceLine
-		firstPos = @targetScimoz.positionFromLine line
-		lastPos = @targetScimoz.positionFromLine line + 1
+		firstPos = @scimoz.positionFromLine line
+		lastPos = @scimoz.positionFromLine line + 1
 
-		styleNumbers = @sourceView.findStyleNumbersForLine sourceLine,
-			ignoreTabs: @opts.ignoreTabs,
-			throwOnBadStyles: @opts.throwOnBadStyles,
-			length: lastPos - firstPos
+		styleNumbers = @view.findStyleNumbersForLine sourceLine, lastPos - firstPos
 
 		#spylog.warn "Stylist::styleContent : style numbers: #{styleNumbers.join(',')}"
 
-		@targetScimoz.startStyling firstPos, 0
+		@scimoz.startStyling firstPos, 0
 		for i in [0 ... styleNumbers.length]
-			@targetScimoz.setStyling 1, styleNumbers[i]
+			@scimoz.setStyling 1, styleNumbers[i]
 
 	styleUniform: (line, style) ->
-		firstPos = @targetScimoz.positionFromLine line
-		lastPos = @targetScimoz.positionFromLine line + 1
+		firstPos = @scimoz.positionFromLine line
+		lastPos = @scimoz.positionFromLine line + 1
 
-		@targetScimoz.startStyling firstPos, 0
-		@targetScimoz.setStyling lastPos - firstPos, style
+		@scimoz.startStyling firstPos, 0
+		@scimoz.setStyling lastPos - firstPos, style
 
 module.exports = Stylist

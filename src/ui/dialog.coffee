@@ -38,11 +38,9 @@ xtk.include 'domutils'
 
 
 		sourceView = views[0] = new SourceView document.getElementById('sourceView'), buffer
-		previewView = views[1] = new PreviewView document.getElementById('previewView')
+		previewView = views[1] = new PreviewView document.getElementById('previewView'), sourceView
 		previewView.progressElement = document.getElementById('previewProgress')
-		previewView.sourceView = sourceView
-		swatchView = views[2] = new SwatchView document.getElementById('swatchView')
-		swatchView.sourceView = sourceView
+		swatchView = views[2] = new SwatchView document.getElementById('swatchView'), sourceView
 
 		if navigator.platform.match /^Mac/
 			#Bug 96209, bug 99277 - hack around scintilla display problems on the mac.

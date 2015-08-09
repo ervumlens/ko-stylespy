@@ -13,8 +13,8 @@ FIRST_INDICATOR_LINE = FIRST_STYLE_LINE + MAX_STYLES + 1
 MAX_INDICATORS = 64
 
 class SwatchView extends View
-	constructor: ->
-		super
+	constructor: (view, @sourceView) ->
+		super view
 		@language = null
 		@scimoz.undoCollection = false
 		@scimoz.readOnly = true

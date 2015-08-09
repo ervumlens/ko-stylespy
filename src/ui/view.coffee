@@ -42,6 +42,8 @@ class @View
 		@active = false
 
 	styleAllVisible: ->
-		
+
+	localLineToSourceLine: (line) ->
+		throw new Exception 'localLineToSourceLine is not supported by this view.'
 
 module.exports = View

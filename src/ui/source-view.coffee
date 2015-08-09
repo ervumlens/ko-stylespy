@@ -6,6 +6,7 @@ http://mozilla.org/MPL/2.0/.
 spylog 	= require('ko/logging').getLogger 'style-spy'
 View 	= require 'stylespy/ui/view'
 EolMode = require 'stylespy/eol-mode'
+LineClass = require 'stylespy/line-classification'
 
 class SourceView extends View
 	constructor: ->
@@ -38,6 +39,9 @@ class SourceView extends View
 		++@changeCount
 		false
 
+	localLineToSourceLine: (line) ->
+		line
+
 	styleAllVisible: ->
 		#TODO only style the visible columns
 		firstLine = @scimoz.firstVisibleLine
@@ -67,6 +71,15 @@ class SourceView extends View
 		line = firstLine
 		while line < lastLine
 			line = line + @styleLine line
+
+	classifyLine: (line) ->
+		start = @scimoz.positionFromLine line
+		end = start + 1
+		text = @scimoz.getTextRange(start, end)
+		switch text
+			when '#', '=' then LineClass.COMMENT
+			when '^' then LineClass.CONTENT
+			else LineClass.UNKNOWN
 
 	styleLine: (line) ->
 		text = @lineText line
@@ -105,7 +118,7 @@ class SourceView extends View
 		#the "last style" value.
 		try
 			styleCount = lastPos - firstPos - 1
-			styleNumbers = @findStyleNumbersForLine line, length: styleCount, throwOnBadStyles: true
+			styleNumbers = @findStyleNumbersForLine line, styleCount
 		catch
 			#Bad styles, style the content line and bail
 			firstPos = @scimoz.positionFromLine line
@@ -132,7 +145,10 @@ class SourceView extends View
 
 		3 #content line and two style lines
 
-	findStyleNumbersForLine: (line, opts) ->
+	findStyleNumbersForLine: (line, length, opts) ->
+		if not opts
+			opts = ignoreTabs: false, throwOnBadStyles: true
+			
 		lineCount = @scimoz.lineCount
 		[style0, style1] = [null, null]
 
@@ -147,12 +163,11 @@ class SourceView extends View
 		else
 			[]
 
-		if opts?.length and styleNumbers.length isnt opts.length
-			if styleNumbers.length < opts.length
-				#missing some values, just fill them in with whatever
-				difference = opts.length - styleNumbers.length
-				for i in [0 ... difference]
-					styleNumbers.push View.STYLE_UNKNOWN
+		if styleNumbers.length < length
+			#missing some values, just fill them in with whatever
+			difference = opts.length - styleNumbers.length
+			for i in [0 ... difference]
+				styleNumbers.push View.STYLE_UNKNOWN
 
 		styleNumbers
 
