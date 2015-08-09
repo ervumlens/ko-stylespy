@@ -50,7 +50,7 @@ xtk.include 'domutils'
 
 		initialized = true
 
-		switchView 0
+		switchView TAB_SOURCE
 
 	catch e
 		spylog.error e
