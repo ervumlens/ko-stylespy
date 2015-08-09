@@ -4,6 +4,11 @@ If a copy of the MPL was not distributed with this file, You can obtain one at
 http://mozilla.org/MPL/2.0/.
 ###
 
-module.exports.UNKNOWN = 0
-module.exports.CONTENT = 1
-module.exports.COMMENT = 2
+(->
+	@UNKNOWN	= 0
+	@CONTENT	= 1
+	@PROPERTY	= 2
+	@COMMENT	= 3
+	@STYLE		= 4
+	@INDICATOR	= 5
+).call module.exports
