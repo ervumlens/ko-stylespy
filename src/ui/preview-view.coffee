@@ -6,7 +6,7 @@ http://mozilla.org/MPL/2.0/.
 spylog	= require('ko/logging').getLogger 'style-spy'
 View	= require 'stylespy/ui/view'
 Stylist	= require 'stylespy/ui/stylist'
-LineClass = require 'stylespy/line-classification'
+LineType = require 'stylespy/line-type'
 
 class PreviewView extends View
 
@@ -17,14 +17,14 @@ class PreviewView extends View
 		@changeCount = -1
 		@previewToSource = []
 		@sourceToPreview = []
-		@stylist = new Stylist @, ignoreTabs: true
+		@stylist = new Stylist @
 		@registerOnUpdate()
 
 	localLineToSourceLine: (line) ->
 		@previewToSource[line]
 
 	classifyLine: ->
-		LineClass.CONTENT
+		LineType.CONTENT
 
 	findStyleNumbersForLine: (line, length) ->
 		@sourceView.findStyleNumbersForLine line, length,

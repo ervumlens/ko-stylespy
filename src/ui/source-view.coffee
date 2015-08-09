@@ -6,7 +6,8 @@ http://mozilla.org/MPL/2.0/.
 spylog 	= require('ko/logging').getLogger 'style-spy'
 View 	= require 'stylespy/ui/view'
 EolMode = require 'stylespy/eol-mode'
-LineClass = require 'stylespy/line-classification'
+LineType= require 'stylespy/line-type'
+Stylist = require 'stylespy/ui/stylist'
 
 class SourceView extends View
 	constructor: ->
@@ -16,6 +17,7 @@ class SourceView extends View
 		@lastUpdateFirstLine = -1
 		@registerOnUpdate()
 		@registerOnModified()
+		@stylist = new Stylist @, stylingOffset: 1
 
 	onUpdate: ->
 		try
@@ -43,112 +45,23 @@ class SourceView extends View
 		line
 
 	styleAllVisible: ->
-		#TODO only style the visible columns
-		firstLine = @scimoz.firstVisibleLine
-		linesOnScreen = @scimoz.linesOnScreen
-		lastLine = firstLine + linesOnScreen
-
-		#Lines on screen reflects the size of the editor,
-		#not the number of valid lines displayed. This means
-		#firstVisibleLine + linesOnScreen is not necessarily a valid line.
-		lastLine = @scimoz.lineCount if lastLine > @scimoz.lineCount
-
-		if firstLine >= 3
-			#skip back 3 lines to prevent straggling
-			#style lines from looking funny.
-			firstLine -= 3
-
-		if lastLine + 3 < @scimoz.lineCount
-			#skip ahead 3 for the same reason.
-			lastLine += 3
-
-		if lastLine + 3 < @scimoz.lineCount
-			#skip ahead 3 more to avoid onUpdateUI's flicker problem.
-			lastLine += 3
-
-		#spylog.warn "SourceView: Styling #{firstLine} to #{lastLine}"
-
-		line = firstLine
-		while line < lastLine
-			line = line + @styleLine line
+		@stylist.styleAllVisible()
 
 	classifyLine: (line) ->
 		start = @scimoz.positionFromLine line
 		end = start + 1
 		text = @scimoz.getTextRange(start, end)
 		switch text
-			when '#', '=' then LineClass.COMMENT
-			when '^' then LineClass.CONTENT
-			else LineClass.UNKNOWN
-
-	styleLine: (line) ->
-		text = @lineText line
-
-		return 1 unless text.length > 0
-
-		#Return the number of lines processed.
-		switch text[0]
-			when '#' then @styleComment line
-			when '^' then @styleContent line
-			when '=' then @styleProperty line, text
-			else @styleUnknown line
-
-	styleComment: (line) ->
-		firstPos = @scimoz.positionFromLine(line)
-		lastPos = @scimoz.positionFromLine(line + 1)
-
-		@scimoz.startStyling firstPos, 0
-		@scimoz.setStyling lastPos - firstPos, View.STYLE_COMMENT
-		1
-
-	styleProperty: (line, text) ->
-		@styleComment line
-
-	styleUnknown: (line) ->
-		@styleComment line
-
-	styleContent: (line) ->
-		#Return the number of lines styled/consumed
-
-		firstPos = @scimoz.positionFromLine line
-		lastPos = @scimoz.positionFromLine line + 1
-
-		#We expect every character to have a style except our leading symbol
-		#The funky space-tab content works fine because style tabs default to
-		#the "last style" value.
-		try
-			styleCount = lastPos - firstPos - 1
-			styleNumbers = @findStyleNumbersForLine line, styleCount
-		catch
-			#Bad styles, style the content line and bail
-			firstPos = @scimoz.positionFromLine line
-			lastPos = @scimoz.positionFromLine line + 1
-			@scimoz.startStyling firstPos, 0
-			@scimoz.setStyling lastPos - firstPos, View.STYLE_UNKNOWN
-			return 1
-
-		#spylog.warn "SourceView::styleContent: StyleNumbers: #{styleNumbers.join(',')}"
-
-		#Style the content line...
-		@scimoz.startStyling firstPos, 0
-		@scimoz.setStyling 1, View.STYLE_COMMENT
-
-		for i in [0 ... styleNumbers.length]
-			@scimoz.setStyling 1, styleNumbers[i]
-
-		#Then whip through the style lines.
-		firstPos = @scimoz.positionFromLine(line + 1)
-		lastPos = @scimoz.positionFromLine(line + 3)
-
-		@scimoz.startStyling firstPos, 0
-		@scimoz.setStyling lastPos - firstPos, View.STYLE_STYLES
-
-		3 #content line and two style lines
+			when '#' then LineType.COMMENT
+			when '=' then LineType.PROPERTY
+			when '^' then LineType.CONTENT
+			when ' ' then LineType.STYLE
+			else LineType.UNKNOWN
 
 	findStyleNumbersForLine: (line, length, opts) ->
 		if not opts
 			opts = ignoreTabs: false, throwOnBadStyles: true
-			
+
 		lineCount = @scimoz.lineCount
 		[style0, style1] = [null, null]
 
@@ -159,13 +72,13 @@ class SourceView extends View
 		styleNumbers = if @areStyleLines style0, style1
 			@toStyleNumbers style0, style1, opts
 		else if opts?.throwOnBadStyles
-			throw new Exception "Bad Styles"
+			throw new Exception "Bad styles for source line #{line}"
 		else
 			[]
 
 		if styleNumbers.length < length
 			#missing some values, just fill them in with whatever
-			difference = opts.length - styleNumbers.length
+			difference = length - styleNumbers.length
 			for i in [0 ... difference]
 				styleNumbers.push View.STYLE_UNKNOWN
 
