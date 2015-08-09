@@ -9,8 +9,17 @@ spylog 	= require('ko/logging').getLogger 'style-spy'
 
 class Stylist
 	constructor: (@view, opts = {}) ->
+		# What style should be used when there's junk in a style line?
+		# This is also used to style content before the stylingOffset.
 		@defaultStyle = opts.defaultStyle or 2
+
+		# On which column should content styling and decorating begin?
 		@stylingOffset = opts.stylingOffset or 0
+
+		# Should each update clear all visible indicators? This
+		# is expensive, so default to "false".
+		@alwaysClearIndicators = opts.alwaysClearIndicators
+
 		@scimoz = @view.scimoz
 
 	styleAllVisible: ->
@@ -35,8 +44,6 @@ class Stylist
 			lastLine = lineCount
 
 		#spylog.warn "Styling from lines #{firstLine} to #{lastLine} (of #{lineCount} lines)."
-
-		@clearAllDecorations firstLine, lastLine
 
 		for line in [firstLine ... lastLine]
 			@styleLine line
@@ -77,6 +84,7 @@ class Stylist
 			@scimoz.setStyling 1, styleNumbers[i]
 
 	clearAllDecorations: (firstLine, lastLine) ->
+		lastLine = firstLine if not lastLine
 		firstPos = @scimoz.positionFromLine firstLine
 		lastPos = @scimoz.positionFromLine lastLine + 1
 		length = lastPos - firstPos
@@ -88,6 +96,8 @@ class Stylist
 		sourceLine = @view.localLineToSourceLine line
 		spylog.warn "Stylist::decorateContent : target line #{line} -> source line #{sourceLine}"
 		return unless sourceLine
+
+		@clearAllDecorations(line) if @alwaysClearIndicators
 
 		firstPos = @stylingOffset + @scimoz.positionFromLine line
 		lastPos = @scimoz.positionFromLine line + 1

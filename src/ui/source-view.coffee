@@ -17,7 +17,9 @@ class SourceView extends View
 		@lastUpdateFirstLine = -1
 		@registerOnUpdate()
 		@registerOnModified()
-		@stylist = new Stylist @, stylingOffset: 1
+		@stylist = new Stylist @,
+			stylingOffset: 1
+			alwaysClearIndicators: true
 
 	onUpdate: ->
 		try
