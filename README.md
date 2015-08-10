@@ -14,7 +14,7 @@ The best place to learn about Style Spy is in Style Spy itself.
 Open the `Help` item under the `Tools` &rarr; `Style Spy` menu to read about functionality.
 
 Here is a brief animation showing Style Spy in use.
-![Animation of Style Spy in use.](screenshot-1.gif)
+![Animation of Style Spy in use.](screenshot-2.gif)
 
 ###Build
 
