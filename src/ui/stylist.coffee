@@ -94,7 +94,7 @@ class Stylist
 
 	decorateContent: (line) ->
 		sourceLine = @view.localLineToSourceLine line
-		spylog.warn "Stylist::decorateContent : target line #{line} -> source line #{sourceLine}"
+		#spylog.warn "Stylist::decorateContent : target line #{line} -> source line #{sourceLine}"
 		return unless sourceLine
 
 		@clearAllDecorations(line) if @alwaysClearIndicators
@@ -105,7 +105,7 @@ class Stylist
 
 		indNumbers = @view.findIndicatorNumbersForLine sourceLine, length
 
-		spylog.warn "Stylist::decorateContent : indicator numbers: #{indNumbers.join('|')}"
+		#spylog.warn "Stylist::decorateContent : indicator numbers: #{indNumbers.join('|')}"
 
 		#indNumbers is an array of arrays
 		for indicators in indNumbers
