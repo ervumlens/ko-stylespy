@@ -36,12 +36,12 @@ class Stylist
 		#our style at random.
 		remaining = lineCount - lastLine
 
-		if remaining >= 6
-			lastLine += 6
-		else if remaining >= 3
-			lastLine += 3
-		else if remaining < 0
+		if remaining < 0
 			lastLine = lineCount
+		else if remaining >= 6
+			lastLine += 6
+		else
+			lastLine += remaining
 
 		#spylog.warn "Styling from lines #{firstLine} to #{lastLine} (of #{lineCount} lines)."
 
