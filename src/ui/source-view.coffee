@@ -129,12 +129,13 @@ class SourceView extends View
 
 	zipColumnNumbers: (row0, row1, opts) ->
 		#zip the rows, starting after the marker column
-		lastNumber = 0
-		numbers = []
-		currentNumber = 0
-		numberText = ''
 		defaultValue = opts?.defaultValue or 0
 		ignoreTabs = opts?.ignoreTabs or false
+
+		numbers = []
+		lastNumber = defaultValue
+		currentNumber = 0
+		numberText = ''
 
 		#Calling trim() is too aggressive.
 		#We just need to scrap EOL characters.
