@@ -118,7 +118,7 @@ class PreviewView extends View
 				enqueue step
 			else
 				#Done!
-				if trimTrailingLine
+				if trimTrailingLine and sourceLines.length > 0
 					lastLine = sourceLines[sourceLines.length - 1]
 					lastLine = lastLine.replace '\r', ''
 					lastLine = lastLine.replace '\n', ''
